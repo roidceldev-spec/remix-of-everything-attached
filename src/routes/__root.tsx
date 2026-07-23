@@ -10,6 +10,10 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { AppInteractionGuards } from "../components/AppInteractionGuards";
+import { AccountProvider } from "../components/account/AccountProvider";
+import { CloudDataBootstrap } from "../components/cloud/CloudDataBootstrap";
+import { ChatProvider } from "../components/chat/ChatProvider";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -76,22 +80,39 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
+      { title: "No More Copium" },
+      {
+        name: "description",
+        content: "Personalized workout programming and progress tracking.",
+      },
+      { name: "application-name", content: "No More Copium" },
+      { name: "apple-mobile-web-app-title", content: "No More Copium" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "black-translucent",
+      },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "theme-color", content: "#0f172a" },
+      { property: "og:title", content: "No More Copium" },
+      {
+        property: "og:description",
+        content: "Personalized workout programming and progress tracking.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:site_name", content: "No More Copium" },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -119,8 +140,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AccountProvider>
+        <CloudDataBootstrap>
+          <ChatProvider>
+            <AppInteractionGuards />
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </ChatProvider>
+        </CloudDataBootstrap>
+      </AccountProvider>
     </QueryClientProvider>
   );
 }
