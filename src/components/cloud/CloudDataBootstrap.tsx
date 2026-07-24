@@ -37,26 +37,26 @@ export function CloudDataBootstrap({ children }: { children: ReactNode }) {
 
   const load = useCallback(async () => {
     setStatus("loading");
-    const { data, error } = await supabase
-      .from("app_state")
-      .select("programs, exercises, workouts, weight_units")
-      .eq("id", "global")
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from("app_state")
+        .select("programs, exercises, workouts, weight_units")
+        .eq("id", "global")
+        .maybeSingle();
+      if (error) throw error;
 
-    if (error) {
+      const row: CloudStateRow = data ?? {
+        programs: [],
+        exercises: [],
+        workouts: [],
+        weight_units: [],
+      };
+      writeCloudRowToCache(row);
+      setStatus("ready");
+    } catch (error) {
       console.error("Failed to load Cloud app state", error);
       setStatus("error");
-      return;
     }
-
-    const row: CloudStateRow = data ?? {
-      programs: [],
-      exercises: [],
-      workouts: [],
-      weight_units: [],
-    };
-    writeCloudRowToCache(row);
-    setStatus("ready");
   }, []);
 
   useEffect(() => {
