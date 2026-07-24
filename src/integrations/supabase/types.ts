@@ -369,7 +369,7 @@ export type Database = {
       advance_client_onboarding: {
         Args: { p_answer: string; p_client_id: string }
         Returns: {
-          onboarding_completed_at: string | null
+          onboarding_completed_at: string
           onboarding_step: number
           thread_id: string
         }[]
@@ -427,7 +427,7 @@ export type Database = {
       initialize_client_onboarding: {
         Args: { p_client_id: string }
         Returns: {
-          onboarding_completed_at: string | null
+          onboarding_completed_at: string
           onboarding_step: number
           thread_id: string
         }[]
