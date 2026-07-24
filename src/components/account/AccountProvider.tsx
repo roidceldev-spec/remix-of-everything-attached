@@ -65,35 +65,49 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      await loadAccounts(data.session?.user ?? null);
+    } catch (error) {
       console.error("Failed to load the Google session", error);
       await loadAccounts(null);
-      return;
     }
-    await loadAccounts(data.session?.user ?? null);
   }, [loadAccounts]);
 
   useEffect(() => {
     let active = true;
-    void supabase.auth.getSession().then(({ data, error }) => {
-      if (!active) return;
-      if (error) console.error("Failed to initialize the Google session", error);
-      void loadAccounts(error ? null : (data.session?.user ?? null));
-    });
+    let unsubscribe: (() => void) | undefined;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!active) return;
-      window.setTimeout(() => {
-        if (active) void loadAccounts(session?.user ?? null);
-      }, 0);
-    });
+    const initialize = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (active) await loadAccounts(data.session?.user ?? null);
+      } catch (error) {
+        console.error("Failed to initialize the Google session", error);
+        if (active) await loadAccounts(null);
+      }
+    };
+    void initialize();
+
+    try {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!active) return;
+        window.setTimeout(() => {
+          if (active) void loadAccounts(session?.user ?? null);
+        }, 0);
+      });
+      unsubscribe = () => subscription.unsubscribe();
+    } catch (error) {
+      console.error("Failed to subscribe to Google session changes", error);
+    }
 
     return () => {
       active = false;
-      subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, [loadAccounts]);
 
