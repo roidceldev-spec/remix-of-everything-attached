@@ -16,7 +16,7 @@ import {
   sendChatMessage,
 } from "@/lib/chat";
 import { fetchAccount, type AppAccount } from "@/lib/cloud-accounts";
-import { cn } from "@/lib/utils";
+import { ChatMessageBubble } from "./ChatMessageBubble";
 import { useChat } from "./ChatProvider";
 
 export function ChatConversation({ clientId }: { clientId: string }) {
@@ -169,31 +169,13 @@ export function ChatConversation({ clientId }: { clientId: string }) {
             </p>
           </div>
         ) : (
-          messages.map((message) => {
-            const own = message.senderAccountId === account.id;
-            return (
-              <div key={message.id} className={cn("flex", own ? "justify-end" : "justify-start")}>
-                <div
-                  className={cn(
-                    "max-w-[82%] rounded-2xl px-3 py-2",
-                    own
-                      ? "rounded-br-sm bg-primary text-primary-foreground"
-                      : "rounded-bl-sm bg-muted text-foreground",
-                  )}
-                >
-                  <p className="whitespace-pre-wrap break-words text-sm">{message.body}</p>
-                  <p
-                    className={cn(
-                      "mt-1 text-[10px] tabular-nums",
-                      own ? "text-primary-foreground/70" : "text-muted-foreground",
-                    )}
-                  >
-                    {formatMessageTime(message.createdAt)}
-                  </p>
-                </div>
-              </div>
-            );
-          })
+          messages.map((message) => (
+            <ChatMessageBubble
+              key={message.id}
+              message={message}
+              own={message.senderAccountId === account.id}
+            />
+          ))
         )}
         <div ref={bottomRef} />
       </div>
@@ -244,15 +226,4 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       </div>
     </section>
   );
-}
-
-function formatMessageTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
 }

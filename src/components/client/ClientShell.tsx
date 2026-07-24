@@ -24,12 +24,15 @@ export function ClientShell() {
   const { user, account, loading } = useAccount();
 
   useEffect(() => {
-    if (!loading && account?.role !== "client") {
+    if (loading) return;
+    if (account?.role === "client" && !account.onboardingCompletedAt) {
+      void navigate({ to: "/onboarding", replace: true });
+    } else if (account?.role !== "client") {
       void navigate({ to: user && !account ? "/onboarding" : "/", replace: true });
     }
   }, [account, loading, navigate, user]);
 
-  if (loading || account?.role !== "client") {
+  if (loading || account?.role !== "client" || !account.onboardingCompletedAt) {
     return <div className="min-h-[100dvh] bg-background" />;
   }
 

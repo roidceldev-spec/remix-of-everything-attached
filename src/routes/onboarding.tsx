@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { GoogleAuthButton } from "@/components/account/GoogleAuthButton";
 import { useAccount } from "@/components/account/AccountProvider";
+import { ClientOnboardingChat } from "@/components/chat/ClientOnboardingChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +15,8 @@ import {
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Create your account — No More Copium" },
-      { name: "description", content: "Continue with Google and create your account." },
+      { title: "Onboarding — No More Copium" },
+      { name: "description", content: "Create your account and complete Coach onboarding." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -30,6 +31,10 @@ function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const enterClientApp = useCallback(async () => {
+    await navigate({ to: "/client/dashboard", replace: true });
+  }, [navigate]);
+
   useEffect(() => {
     if (!user || name) return;
     const suggestedName = user.user_metadata?.full_name ?? user.user_metadata?.name;
@@ -37,13 +42,13 @@ function OnboardingPage() {
   }, [name, user]);
 
   useEffect(() => {
-    if (!loading && account) {
-      void navigate({
-        to: account.role === "coach" ? "/coach/dashboard" : "/client/dashboard",
-        replace: true,
-      });
+    if (loading || !account) return;
+    if (account.role === "coach") {
+      void navigate({ to: "/coach/dashboard", replace: true });
+    } else if (account.onboardingCompletedAt) {
+      void enterClientApp();
     }
-  }, [account, loading, navigate]);
+  }, [account, enterClientApp, loading, navigate]);
 
   const submitProfile = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -86,8 +91,16 @@ function OnboardingPage() {
     }
   };
 
-  if (loading || account) {
+  if (loading) {
     return <main className="min-h-[100dvh] bg-black" aria-label="Loading account" />;
+  }
+
+  if (account?.role === "client" && !account.onboardingCompletedAt) {
+    return <ClientOnboardingChat account={account} onCompleted={enterClientApp} />;
+  }
+
+  if (account) {
+    return <main className="min-h-[100dvh] bg-black" aria-label="Opening app" />;
   }
 
   if (!user) {
