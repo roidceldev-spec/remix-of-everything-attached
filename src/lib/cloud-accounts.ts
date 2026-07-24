@@ -8,6 +8,8 @@ export type AppAccount = {
   username: string;
   role: AccountRole;
   isPreview: boolean;
+  onboardingStep: number;
+  onboardingCompletedAt?: string;
   assignedProgramId?: string;
   createdAt: string;
 };
@@ -18,7 +20,7 @@ export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_MAX_LENGTH = 30;
 
 const ACCOUNT_COLUMNS =
-  "id, name, username, role, is_preview, assigned_program_id, created_at" as const;
+  "id, name, username, role, is_preview, onboarding_step, onboarding_completed_at, assigned_program_id, created_at" as const;
 
 export function normalizeUsername(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -42,6 +44,10 @@ function mapAccount(row: Record<string, unknown>): AppAccount {
     username: String(row.username),
     role: row.role === "coach" ? "coach" : "client",
     isPreview: row.is_preview === true,
+    onboardingStep:
+      typeof row.onboarding_step === "number" ? Math.max(0, Math.floor(row.onboarding_step)) : 0,
+    onboardingCompletedAt:
+      typeof row.onboarding_completed_at === "string" ? row.onboarding_completed_at : undefined,
     assignedProgramId:
       typeof row.assigned_program_id === "string" ? row.assigned_program_id : undefined,
     createdAt: String(row.created_at),

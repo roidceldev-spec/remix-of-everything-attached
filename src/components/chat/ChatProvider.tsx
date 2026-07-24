@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useAccount } from "@/components/account/AccountProvider";
 import { Toaster } from "@/components/ui/sonner";
@@ -21,27 +21,30 @@ const ChatContext = createContext<{
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { account } = useAccount();
+  const accountId = account?.id;
+  const accountRole = account?.role;
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [summary, setSummary] = useState<ChatUnreadSummary>(EMPTY_SUMMARY);
 
   const refreshUnread = useCallback(async () => {
-    if (!account) {
+    if (!accountId) {
       setSummary(EMPTY_SUMMARY);
       return;
     }
     try {
-      setSummary(await fetchChatUnreadSummary(account.id));
+      setSummary(await fetchChatUnreadSummary(accountId));
     } catch (error) {
       console.error("Failed to refresh chat unread state", error);
     }
-  }, [account]);
+  }, [accountId]);
 
   useEffect(() => {
     void refreshUnread();
-    if (!account) return;
+    if (!accountId || !accountRole) return;
 
     const channel = supabase
-      .channel(`chat-notifications-${account.id}`)
+      .channel(`chat-notifications-${accountId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "chat_messages" },
@@ -53,14 +56,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           };
           void refreshUnread();
           if (
+            pathname === "/onboarding" ||
             typeof message.sender_account_id !== "string" ||
-            message.sender_account_id === account.id ||
+            message.sender_account_id === accountId ||
             typeof message.body !== "string"
           ) {
             return;
           }
           void showIncomingToast({
-            accountRole: account.role,
+            accountRole,
             senderId: message.sender_account_id,
             threadId: typeof message.thread_id === "string" ? message.thread_id : undefined,
             body: message.body,
@@ -81,15 +85,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("focus", refreshOnFocus);
       void supabase.removeChannel(channel);
     };
-  }, [account, navigate, refreshUnread]);
+  }, [accountId, accountRole, navigate, pathname, refreshUnread]);
 
   const value = useMemo(
     () => ({
       summary,
-      badgeCount: account?.role === "coach" ? summary.unreadClientCount : summary.unreadMessages,
+      badgeCount: accountRole === "coach" ? summary.unreadClientCount : summary.unreadMessages,
       refreshUnread,
     }),
-    [account?.role, refreshUnread, summary],
+    [accountRole, refreshUnread, summary],
   );
 
   return (

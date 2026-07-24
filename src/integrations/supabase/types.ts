@@ -22,6 +22,8 @@ export type Database = {
           id: string
           is_preview: boolean
           name: string
+          onboarding_completed_at: string | null
+          onboarding_step: number
           role: string
           updated_at: string
           username: string
@@ -33,6 +35,8 @@ export type Database = {
           id?: string
           is_preview?: boolean
           name: string
+          onboarding_completed_at?: string | null
+          onboarding_step?: number
           role: string
           updated_at?: string
           username: string
@@ -44,6 +48,8 @@ export type Database = {
           id?: string
           is_preview?: boolean
           name?: string
+          onboarding_completed_at?: string | null
+          onboarding_step?: number
           role?: string
           updated_at?: string
           username?: string
@@ -360,6 +366,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      advance_client_onboarding: {
+        Args: { p_answer: string; p_client_id: string }
+        Returns: {
+          onboarding_completed_at: string
+          onboarding_step: number
+          thread_id: string
+        }[]
+      }
       append_progress_pictures_to_batch: {
         Args: { p_batch_id: string; p_client_id: string; p_pictures: Json }
         Returns: string
@@ -371,6 +385,10 @@ export type Database = {
       can_read_client_account: {
         Args: { p_client_id: string }
         Returns: boolean
+      }
+      complete_client_onboarding: {
+        Args: { p_client_id: string }
+        Returns: string
       }
       create_progress_picture_batch: {
         Args: {
@@ -405,6 +423,14 @@ export type Database = {
       get_or_create_chat_thread: {
         Args: { p_client_id: string }
         Returns: string
+      }
+      initialize_client_onboarding: {
+        Args: { p_client_id: string }
+        Returns: {
+          onboarding_completed_at: string
+          onboarding_step: number
+          thread_id: string
+        }[]
       }
       is_app_coach: { Args: never; Returns: boolean }
       is_progress_picture_storage_path: {
