@@ -112,16 +112,18 @@ Approved activation/versioning behavior:
 
 ## Data model direction
 
-Recommended Cloud structure:
+Current local implementation:
 
-- A Coach-owned Final Sequence configuration record.
-- Ordered Final Sequence message records.
-- Ordered line/block records inside each message.
-- Line type constrained to `text`, `external_link`, or `popup_link` initially.
-- Active-version metadata and atomic Save-changes replacement.
-- Updated timestamp and version identifier.
+- One active Final Sequence configuration stored in localStorage.
+- Ordered structured messages and lines.
+- Line type constrained to `text`, `external_link`, or `popup_link`.
+- Incrementing version, updated timestamp, and atomic Save-changes replacement.
+- Onboarding stores an encoded snapshot of each sent message, so later edits never alter chat history.
 
-All writes must be Coach-only through strict RLS or ownership-checked RPCs. Clients receive read access only to the published sequence needed by the onboarding transaction, or the backend inserts the messages on their behalf.
+Future Cloud rebuild:
+
+- Move the same structure to Coach-owned records with strict RLS or ownership-checked RPCs.
+- Clients receive only the active version needed by the onboarding transaction, or the backend inserts the messages on their behalf.
 
 ## Existing placeholder interaction
 
@@ -163,18 +165,19 @@ No broadcast implementation should begin until these behaviors are approved.
 ### Final Sequence editing
 
 - [x] Manual **Save changes** with confirmation; no separate draft/publish workflow.
-- [ ] Confirm maximum messages per sequence.
-- [ ] Confirm maximum lines per message.
-- [ ] Confirm maximum text/link-label length.
-- [ ] Confirm drag reorder plus accessible move-up/move-down controls.
-- [ ] Confirm delete confirmation and undo behavior.
-- [ ] Confirm preview design.
+- [x] Maximum 20 messages per sequence.
+- [x] Maximum 20 lines per message.
+- [x] Maximum 2,000 characters per line/link label and 2,048 URL characters.
+- [x] Accessible move-up/move-down controls for messages and lines.
+- [ ] Consider drag reorder as a later enhancement.
+- [x] Delete confirmation; undo remains a possible later enhancement.
+- [x] Preview uses the actual Client chat-bubble renderer.
 
 ### Hyperlinks
 
 - [x] External links open in a new tab/window.
-- [ ] Confirm whether only HTTPS is allowed.
-- [ ] Confirm whether internal No More Copium routes are allowed.
+- [x] Only valid HTTPS external URLs are allowed.
+- [ ] Internal No More Copium route links are not implemented yet.
 - [x] Existing popup remains as a separate Popup link line type.
 
 ### Saving/versioning

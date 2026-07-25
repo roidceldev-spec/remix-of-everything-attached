@@ -88,28 +88,30 @@ Status: implemented; requires deployment and browser verification.
 
 ## Feature 3 — Coach-controlled Final Sequence editor
 
-Status: not implemented.
+Status: implemented; requires deployment and browser verification.
 
-- [ ] Add Final Sequence section under Messaging → Automations.
-- [ ] Add multiple messages.
-- [ ] Edit messages.
-- [ ] Delete messages.
-- [ ] Reorder messages.
-- [ ] Add plain-text lines.
-- [ ] Add external-link lines with visible text and URL fields.
-- [ ] Open external links in a new tab with `noopener noreferrer`.
-- [ ] Reject unsafe/malformed URL schemes.
-- [ ] Add popup-link lines that open the existing almost-full-screen popup.
-- [ ] Reorder lines inside a message.
-- [ ] Preview messages using Client chat-bubble styling.
-- [ ] Add manual Save changes action with confirmation.
-- [ ] Warn before discarding unsaved changes.
-- [ ] Save active sequence versions locally.
-- [ ] Capture one consistent active version when a Client enters the final sequence.
-- [ ] Never alter already-sent history.
-- [ ] Prevent duplicate final-sequence messages after refresh/retry.
-- [ ] Decide maximum messages, lines, and character lengths.
-- [ ] Decide delete confirmation/undo behavior.
+- [x] Add Final Sequence section under Messaging → Automations.
+- [x] Add multiple messages.
+- [x] Edit messages.
+- [x] Delete messages with confirmation.
+- [x] Reorder messages with accessible move controls.
+- [x] Add plain-text lines.
+- [x] Add external-link lines with visible text and URL fields.
+- [x] Open external links in a new tab with `noopener noreferrer`.
+- [x] Allow only valid `https://` external URLs.
+- [x] Add popup-link lines that open the existing almost-full-screen popup.
+- [x] Reorder lines inside a message.
+- [x] Preview messages using Client chat-bubble styling.
+- [x] Add manual Save changes action with confirmation.
+- [x] Warn before closing the page with unsaved changes.
+- [x] Save active sequence versions locally.
+- [x] Capture one consistent active version when a Client enters the final sequence.
+- [x] Never alter already-sent history.
+- [x] Use versioned deterministic message IDs to prevent retry duplicates.
+- [x] Maximum 20 messages, 20 lines per message, 2,000 characters per line, and 2,048 URL characters.
+- [ ] Browser-test editing, validation, preview, save, external links, popup links, and onboarding delivery.
+- [ ] Consider drag-and-drop later; accessible move-up/down controls are implemented now.
+- [ ] Consider undo later; delete confirmation is implemented now.
 
 ## Feature 4 — Local image chat and Join Requests
 
