@@ -1,8 +1,15 @@
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
-import { type AppAccount, fetchAccounts, fetchPublicCoachAccount } from "./cloud-accounts";
+import {
+  type AppAccount,
+  fetchAccount,
+  fetchAccounts,
+  fetchPublicCoachAccount,
+} from "./cloud-accounts";
+import { emitLocalEvent, LOCAL_CHAT_CHANGED_EVENT } from "./local-events";
 
 export const MAX_CHAT_MESSAGE_LENGTH = 2000;
+const THREADS_KEY = "no-more-copium:chat-threads:v2";
+const MESSAGES_KEY = "no-more-copium:chat-messages:v2";
+const READS_KEY = "no-more-copium:chat-reads:v2";
 
 export type ChatMessage = {
   id: string;
@@ -11,6 +18,15 @@ export type ChatMessage = {
   body: string;
   createdAt: string;
 };
+
+type LocalThread = {
+  id: string;
+  clientId: string;
+  coachId: string;
+  createdAt: string;
+};
+
+type LocalRead = { threadId: string; accountId: string; lastReadAt: string };
 
 export type CoachChatConversation = {
   client: AppAccount;
@@ -27,65 +43,59 @@ export type ChatUnreadSummary = {
   byClientId: Record<string, number>;
 };
 
-type ChatMessageRow = Tables<"chat_messages">;
-
 export async function fetchChatUnreadSummary(accountId: string): Promise<ChatUnreadSummary> {
-  const { data, error } = await supabase.rpc("get_chat_unread_counts", {
-    p_account_id: accountId,
-  });
-  if (error) throw error;
+  const threads = read<LocalThread[]>(THREADS_KEY, []);
+  const messages = read<ChatMessage[]>(MESSAGES_KEY, []);
+  const reads = read<LocalRead[]>(READS_KEY, []);
   const byClientId: Record<string, number> = {};
-  let unreadMessages = 0;
-  for (const row of data ?? []) {
-    const count = Math.max(0, Number(row.unread_messages) || 0);
-    if (count > 0) {
-      byClientId[row.client_id] = count;
-      unreadMessages += count;
-    }
+  for (const thread of threads) {
+    if (accountId !== thread.clientId && accountId !== thread.coachId) continue;
+    const lastReadAt = reads.find(
+      (entry) => entry.threadId === thread.id && entry.accountId === accountId,
+    )?.lastReadAt;
+    const count = messages.filter(
+      (message) =>
+        message.threadId === thread.id &&
+        message.senderAccountId !== accountId &&
+        (!lastReadAt || message.createdAt > lastReadAt),
+    ).length;
+    if (count > 0) byClientId[thread.clientId] = count;
   }
   return {
-    unreadMessages,
+    unreadMessages: Object.values(byClientId).reduce((sum, count) => sum + count, 0),
     unreadClientCount: Object.keys(byClientId).length,
     byClientId,
   };
 }
 
 export async function fetchCoachChatInbox(coachId: string): Promise<CoachChatConversation[]> {
-  const accountsPromise = fetchAccounts();
-  const threadsPromise = supabase.from("chat_threads").select("*").eq("coach_id", coachId);
-  const unreadPromise = fetchChatUnreadSummary(coachId);
-  const [accounts, threadsResult, unread] = await Promise.all([
-    accountsPromise,
-    threadsPromise,
-    unreadPromise,
-  ]);
-  if (threadsResult.error) throw threadsResult.error;
-
-  const threadsByClientId = new Map(
-    (threadsResult.data ?? []).map((thread) => [thread.client_id, thread]),
-  );
-  const conversations = accounts
+  const accounts = await fetchAccounts();
+  const threads = read<LocalThread[]>(THREADS_KEY, []);
+  const messages = read<ChatMessage[]>(MESSAGES_KEY, []);
+  const unread = await fetchChatUnreadSummary(coachId);
+  return accounts
     .filter((account) => account.role === "client")
-    .map((client): CoachChatConversation => {
-      const thread = threadsByClientId.get(client.id);
+    .map((client) => {
+      const thread = threads.find((candidate) => candidate.clientId === client.id);
+      const latest = thread
+        ? messages
+            .filter((message) => message.threadId === thread.id)
+            .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0]
+        : undefined;
       return {
         client,
         threadId: thread?.id,
-        lastMessageBody: thread?.last_message_body ?? undefined,
-        lastMessageSenderId: thread?.last_message_sender_id ?? undefined,
-        lastMessageAt: thread?.last_message_at ?? undefined,
+        lastMessageBody: latest?.body,
+        lastMessageSenderId: latest?.senderAccountId,
+        lastMessageAt: latest?.createdAt,
         unreadMessages: unread.byClientId[client.id] ?? 0,
       };
-    });
-
-  return conversations.sort((left, right) => {
-    if (left.lastMessageAt && right.lastMessageAt) {
-      return right.lastMessageAt.localeCompare(left.lastMessageAt);
-    }
-    if (left.lastMessageAt) return -1;
-    if (right.lastMessageAt) return 1;
-    return left.client.name.localeCompare(right.client.name);
-  });
+    })
+    .sort(
+      (left, right) =>
+        right.lastMessageAt?.localeCompare(left.lastMessageAt ?? "") ||
+        left.client.name.localeCompare(right.client.name),
+    );
 }
 
 export async function fetchCoachAccount(): Promise<AppAccount | null> {
@@ -93,22 +103,28 @@ export async function fetchCoachAccount(): Promise<AppAccount | null> {
 }
 
 export async function ensureChatThread(clientId: string): Promise<string> {
-  const { data, error } = await supabase.rpc("get_or_create_chat_thread", {
-    p_client_id: clientId,
-  });
-  if (error) throw error;
-  return data;
+  const client = await fetchAccount(clientId);
+  const coach = await fetchPublicCoachAccount();
+  if (!client || client.role !== "client") throw new Error("Client account was not found.");
+  if (!coach) throw new Error("Create a local Coach account first.");
+  const threads = read<LocalThread[]>(THREADS_KEY, []);
+  const existing = threads.find((thread) => thread.clientId === clientId);
+  if (existing) return existing.id;
+  const thread: LocalThread = {
+    id: createChatMessageId(),
+    clientId,
+    coachId: coach.id,
+    createdAt: new Date().toISOString(),
+  };
+  write(THREADS_KEY, [...threads, thread]);
+  emitLocalEvent(LOCAL_CHAT_CHANGED_EVENT);
+  return thread.id;
 }
 
 export async function fetchChatMessages(threadId: string): Promise<ChatMessage[]> {
-  const { data, error } = await supabase
-    .from("chat_messages")
-    .select("*")
-    .eq("thread_id", threadId)
-    .order("created_at", { ascending: true })
-    .limit(500);
-  if (error) throw error;
-  return (data ?? []).map(mapMessage);
+  return read<ChatMessage[]>(MESSAGES_KEY, [])
+    .filter((message) => message.threadId === threadId)
+    .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
 }
 
 export async function sendChatMessage({
@@ -126,42 +142,64 @@ export async function sendChatMessage({
   if (!normalized || normalized.length > MAX_CHAT_MESSAGE_LENGTH) {
     throw new Error(`Messages must be 1–${MAX_CHAT_MESSAGE_LENGTH} characters.`);
   }
-  const { data, error } = await supabase.rpc("send_chat_message", {
-    p_message_id: messageId,
-    p_sender_account_id: senderAccountId,
-    p_client_id: clientId,
-    p_body: normalized,
-  });
-  if (error) throw error;
-  return data;
+  const sender = await fetchAccount(senderAccountId);
+  if (!sender) throw new Error("Sender account was not found.");
+  if (sender.role === "client" && !sender.onboardingCompletedAt) {
+    throw new Error("Complete onboarding before sending free-form messages.");
+  }
+  const threadId = await ensureChatThread(clientId);
+  appendMessages([
+    {
+      id: messageId,
+      threadId,
+      senderAccountId,
+      body: normalized,
+      createdAt: new Date().toISOString(),
+    },
+  ]);
+  return messageId;
+}
+
+export async function appendLocalChatMessages(messages: ChatMessage[]): Promise<void> {
+  appendMessages(messages);
 }
 
 export async function markChatRead(accountId: string, clientId: string): Promise<void> {
-  const { error } = await supabase.rpc("mark_chat_read", {
-    p_account_id: accountId,
-    p_client_id: clientId,
-  });
-  if (error) throw error;
+  const threadId = await ensureChatThread(clientId);
+  const reads = read<LocalRead[]>(READS_KEY, []);
+  const next = reads.filter(
+    (entry) => !(entry.threadId === threadId && entry.accountId === accountId),
+  );
+  next.push({ threadId, accountId, lastReadAt: new Date().toISOString() });
+  write(READS_KEY, next);
+  emitLocalEvent(LOCAL_CHAT_CHANGED_EVENT);
 }
 
 export function createChatMessageId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-  const hex = Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16));
-  hex[12] = "4";
-  hex[16] = ((Number.parseInt(hex[16], 16) & 0x3) | 0x8).toString(16);
-  return `${hex.slice(0, 8).join("")}-${hex.slice(8, 12).join("")}-${hex
-    .slice(12, 16)
-    .join("")}-${hex.slice(16, 20).join("")}-${hex.slice(20).join("")}`;
+  return `message_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function mapMessage(row: ChatMessageRow): ChatMessage {
-  return {
-    id: row.id,
-    threadId: row.thread_id,
-    senderAccountId: row.sender_account_id,
-    body: row.body,
-    createdAt: row.created_at,
-  };
+function appendMessages(additions: ChatMessage[]): void {
+  const messages = read<ChatMessage[]>(MESSAGES_KEY, []);
+  const existing = new Set(messages.map((message) => message.id));
+  const next = [...messages, ...additions.filter((message) => !existing.has(message.id))];
+  write(MESSAGES_KEY, next);
+  for (const message of additions) emitLocalEvent(LOCAL_CHAT_CHANGED_EVENT, message);
+}
+
+function read<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    return JSON.parse(window.localStorage.getItem(key) ?? "null") ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key: string, value: unknown): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, JSON.stringify(value));
 }

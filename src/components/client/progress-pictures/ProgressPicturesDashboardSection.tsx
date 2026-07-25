@@ -107,7 +107,7 @@ export function ProgressPicturesDashboardSection({
           <p id="progress-upload-status" className="text-xs text-muted-foreground">
             {loading
               ? "Checking today’s progress pictures…"
-              : "Choose your camera or gallery. Pictures are optimized before upload."}
+              : "Choose your camera or gallery. Pictures are optimized before local storage."}
           </p>
         </>
       )}

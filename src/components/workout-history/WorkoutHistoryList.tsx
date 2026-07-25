@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, ChevronUp, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { formatElapsed } from "@/lib/coach-workout-preview";
+import { LOCAL_WORKOUT_HISTORY_CHANGED_EVENT } from "@/lib/local-events";
 import {
   type WorkoutHistorySession,
   type WorkoutSessionSetSnapshot,
@@ -21,7 +21,7 @@ export function WorkoutHistoryList({ clientId }: { clientId: string }) {
       setSessions(await fetchWorkoutSessions(clientId));
     } catch (nextError) {
       console.error(nextError);
-      setError("Workout history could not be loaded from Cloud.");
+      setError("Workout history could not be loaded from this device.");
     } finally {
       setLoading(false);
     }
@@ -29,23 +29,14 @@ export function WorkoutHistoryList({ clientId }: { clientId: string }) {
 
   useEffect(() => {
     void load();
-    const channel = supabase
-      .channel(`workout-history-${clientId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "workout_sessions",
-          filter: `client_id=eq.${clientId}`,
-        },
-        () => void load(),
-      )
-      .subscribe();
+    const onChange = () => void load();
+    window.addEventListener(LOCAL_WORKOUT_HISTORY_CHANGED_EVENT, onChange);
+    window.addEventListener("storage", onChange);
     return () => {
-      void supabase.removeChannel(channel);
+      window.removeEventListener(LOCAL_WORKOUT_HISTORY_CHANGED_EVENT, onChange);
+      window.removeEventListener("storage", onChange);
     };
-  }, [clientId, load]);
+  }, [load]);
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">Loading workout history…</p>;

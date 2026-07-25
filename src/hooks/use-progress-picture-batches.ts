@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { fetchProgressPictureBatches } from "@/lib/cloud-progress-pictures";
+import { LOCAL_PROGRESS_PICTURES_CHANGED_EVENT } from "@/lib/local-events";
 import type { ProgressPictureBatch } from "@/lib/progress-pictures";
 
 export function useProgressPictureBatches(clientId: string | undefined) {
@@ -20,8 +20,8 @@ export function useProgressPictureBatches(clientId: string | undefined) {
       try {
         setBatches(await fetchProgressPictureBatches(clientId));
       } catch (nextError) {
-        console.error("Failed to load progress pictures", nextError);
-        setError("Progress pictures could not be loaded from Cloud.");
+        console.error("Failed to load local progress pictures", nextError);
+        setError("Progress pictures could not be loaded from this device.");
       } finally {
         setLoading(false);
       }
@@ -31,34 +31,16 @@ export function useProgressPictureBatches(clientId: string | undefined) {
 
   useEffect(() => {
     void refresh(true);
-    if (!clientId) return;
-
-    const channel = supabase
-      .channel(`progress-pictures-${clientId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "progress_picture_batches",
-          filter: `client_id=eq.${clientId}`,
-        },
-        () => void refresh(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "progress_pictures" },
-        () => void refresh(),
-      )
-      .subscribe();
-
-    const refreshOnFocus = () => void refresh();
-    window.addEventListener("focus", refreshOnFocus);
+    const onChange = () => void refresh();
+    window.addEventListener(LOCAL_PROGRESS_PICTURES_CHANGED_EVENT, onChange);
+    window.addEventListener("storage", onChange);
+    window.addEventListener("focus", onChange);
     return () => {
-      window.removeEventListener("focus", refreshOnFocus);
-      void supabase.removeChannel(channel);
+      window.removeEventListener(LOCAL_PROGRESS_PICTURES_CHANGED_EVENT, onChange);
+      window.removeEventListener("storage", onChange);
+      window.removeEventListener("focus", onChange);
     };
-  }, [clientId, refresh]);
+  }, [refresh]);
 
   return { batches, loading, error, refresh: () => refresh(true) };
 }

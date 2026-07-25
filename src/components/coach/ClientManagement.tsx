@@ -29,7 +29,7 @@ export function ClientManagement({ clientId }: { clientId: string }) {
       })
       .catch((nextError: unknown) => {
         console.error(nextError);
-        setError("Client data could not be loaded from Cloud.");
+        setError("Client data could not be loaded from this device.");
       })
       .finally(() => setLoading(false));
   }, [clientId]);
@@ -50,7 +50,7 @@ export function ClientManagement({ clientId }: { clientId: string }) {
             Client not found
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {error ?? "This client account is not available in Cloud."}
+            {error ?? "This client account is not available on this device."}
           </p>
         </div>
       </section>

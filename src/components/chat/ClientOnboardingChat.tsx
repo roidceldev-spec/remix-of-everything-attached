@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { type ChatMessage, fetchChatMessages, fetchCoachAccount, markChatRead } from "@/lib/chat";
+import { LOCAL_CHAT_CHANGED_EVENT } from "@/lib/local-events";
 import {
   CLIENT_ONBOARDING_QUESTIONS,
   type ClientOnboardingState,
@@ -52,7 +52,7 @@ export function ClientOnboardingChat({
       if (nextFlow.completedAt) await onCompleted();
     } catch (nextError) {
       console.error("Client onboarding could not be loaded", nextError);
-      setError("Onboarding could not be loaded from Cloud. Please try again.");
+      setError("Local onboarding could not be loaded. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -65,46 +65,17 @@ export function ClientOnboardingChat({
   useEffect(() => {
     if (!flow?.threadId) return;
     const threadId = flow.threadId;
-    const channel = supabase
-      .channel(`client-onboarding-${threadId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-          filter: `thread_id=eq.${threadId}`,
-        },
-        (payload) => {
-          const row = payload.new as {
-            id: string;
-            thread_id: string;
-            sender_account_id: string;
-            body: string;
-            created_at: string;
-          };
-          setMessages((current) =>
-            current.some((message) => message.id === row.id)
-              ? current
-              : [
-                  ...current,
-                  {
-                    id: row.id,
-                    threadId: row.thread_id,
-                    senderAccountId: row.sender_account_id,
-                    body: row.body,
-                    createdAt: row.created_at,
-                  },
-                ],
-          );
-          void markChatRead(account.id, account.id).then(refreshUnread).catch(console.error);
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
+    const onChatChanged = () => {
+      void loadMessages(threadId);
+      void markChatRead(account.id, account.id).then(refreshUnread).catch(console.error);
     };
-  }, [account.id, flow?.threadId, refreshUnread]);
+    window.addEventListener(LOCAL_CHAT_CHANGED_EVENT, onChatChanged);
+    window.addEventListener("storage", onChatChanged);
+    return () => {
+      window.removeEventListener(LOCAL_CHAT_CHANGED_EVENT, onChatChanged);
+      window.removeEventListener("storage", onChatChanged);
+    };
+  }, [account.id, flow?.threadId, loadMessages, refreshUnread]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });

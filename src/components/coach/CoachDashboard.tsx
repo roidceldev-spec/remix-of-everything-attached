@@ -13,7 +13,7 @@ export function CoachDashboard() {
       .then((accounts) => setClients(accounts.filter((account) => account.role === "client")))
       .catch((nextError: unknown) => {
         console.error(nextError);
-        setError("Clients could not be loaded from Cloud.");
+        setError("Local clients could not be loaded.");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -44,7 +44,7 @@ export function CoachDashboard() {
             <Users className="mx-auto h-7 w-7 text-muted-foreground" aria-hidden="true" />
             <h3 className="mt-3 text-sm font-medium text-foreground">No clients yet</h3>
             <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-              New clients appear here after they create an account with Google.
+              Local Client accounts created on this device appear here.
             </p>
           </div>
         ) : (

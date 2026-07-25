@@ -1,4 +1,10 @@
-import { supabase } from "@/integrations/supabase/client";
+import {
+  appendLocalChatMessages,
+  createChatMessageId,
+  ensureChatThread,
+  fetchCoachAccount,
+} from "./chat";
+import { fetchAccount, updateLocalAccount } from "./cloud-accounts";
 
 export const ONBOARDING_FINAL_MESSAGE = "placeholder\nplaceholder";
 
@@ -35,48 +41,96 @@ export const CLIENT_ONBOARDING_QUESTIONS: Record<1 | 2 | 3 | 4, ClientOnboarding
 };
 
 export async function initializeClientOnboarding(clientId: string): Promise<ClientOnboardingState> {
-  const { data, error } = await supabase.rpc("initialize_client_onboarding", {
-    p_client_id: clientId,
-  });
-  if (error) throw error;
-  return mapState(data?.[0]);
+  const client = await requireClient(clientId);
+  const coach = await requireCoach();
+  const threadId = await ensureChatThread(clientId);
+  if (client.onboardingStep === 0 && !client.onboardingCompletedAt) {
+    const now = Date.now();
+    await appendLocalChatMessages([
+      {
+        id: createChatMessageId(),
+        threadId,
+        senderAccountId: coach.id,
+        body: `Welcome to No More Copium, ${client.name}.`,
+        createdAt: new Date(now).toISOString(),
+      },
+      {
+        id: createChatMessageId(),
+        threadId,
+        senderAccountId: coach.id,
+        body: CLIENT_ONBOARDING_QUESTIONS[1].prompt,
+        createdAt: new Date(now + 1).toISOString(),
+      },
+    ]);
+    await updateLocalAccount(clientId, { onboardingStep: 1 });
+    return { threadId, step: 1 };
+  }
+  return {
+    threadId,
+    step: normalizeStep(client.onboardingStep),
+    completedAt: client.onboardingCompletedAt,
+  };
 }
 
 export async function answerClientOnboarding(
   clientId: string,
   answer: string,
 ): Promise<ClientOnboardingState> {
-  const { data, error } = await supabase.rpc("advance_client_onboarding", {
-    p_client_id: clientId,
-    p_answer: answer,
-  });
-  if (error) throw error;
-  return mapState(data?.[0]);
+  const client = await requireClient(clientId);
+  const coach = await requireCoach();
+  const step = normalizeStep(client.onboardingStep);
+  if (client.onboardingCompletedAt) throw new Error("Onboarding is already complete.");
+  if (step < 1 || step > 4) throw new Error("This onboarding answer is not expected.");
+  const question = CLIENT_ONBOARDING_QUESTIONS[step as 1 | 2 | 3 | 4];
+  if (!question.options.includes(answer)) throw new Error("Choose one of the available options.");
+
+  const threadId = await ensureChatThread(clientId);
+  const nextStep = (step + 1) as ClientOnboardingStep;
+  const nextMessage =
+    nextStep <= 4
+      ? CLIENT_ONBOARDING_QUESTIONS[nextStep as 1 | 2 | 3 | 4].prompt
+      : ONBOARDING_FINAL_MESSAGE;
+  const now = Date.now();
+  await appendLocalChatMessages([
+    {
+      id: createChatMessageId(),
+      threadId,
+      senderAccountId: clientId,
+      body: answer,
+      createdAt: new Date(now).toISOString(),
+    },
+    {
+      id: createChatMessageId(),
+      threadId,
+      senderAccountId: coach.id,
+      body: nextMessage,
+      createdAt: new Date(now + 1).toISOString(),
+    },
+  ]);
+  await updateLocalAccount(clientId, { onboardingStep: nextStep });
+  return { threadId, step: nextStep };
 }
 
 export async function completeClientOnboarding(clientId: string): Promise<string> {
-  const { data, error } = await supabase.rpc("complete_client_onboarding", {
-    p_client_id: clientId,
-  });
-  if (error) throw error;
-  if (typeof data !== "string") throw new Error("Onboarding completion returned no timestamp.");
-  return data;
+  const client = await requireClient(clientId);
+  if (client.onboardingStep !== 5) throw new Error("Answer every onboarding question first.");
+  const completedAt = client.onboardingCompletedAt ?? new Date().toISOString();
+  await updateLocalAccount(clientId, { onboardingStep: 5, onboardingCompletedAt: completedAt });
+  return completedAt;
 }
 
-function mapState(
-  row:
-    | {
-        thread_id: string;
-        onboarding_step: number;
-        onboarding_completed_at: string | null;
-      }
-    | undefined,
-): ClientOnboardingState {
-  if (!row?.thread_id) throw new Error("Onboarding returned no Coach conversation.");
-  const rawStep = Math.max(0, Math.min(5, Math.floor(Number(row.onboarding_step) || 0)));
-  return {
-    threadId: row.thread_id,
-    step: rawStep as ClientOnboardingStep,
-    completedAt: row.onboarding_completed_at ?? undefined,
-  };
+function normalizeStep(value: number): ClientOnboardingStep {
+  return Math.max(0, Math.min(5, Math.floor(value || 0))) as ClientOnboardingStep;
+}
+
+async function requireClient(clientId: string) {
+  const client = await fetchAccount(clientId);
+  if (!client || client.role !== "client") throw new Error("Local Client account was not found.");
+  return client;
+}
+
+async function requireCoach() {
+  const coach = await fetchCoachAccount();
+  if (!coach) throw new Error("Create a local Coach account before Client onboarding.");
+  return coach;
 }
