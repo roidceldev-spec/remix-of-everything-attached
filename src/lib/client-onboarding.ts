@@ -1,5 +1,6 @@
 import { appendLocalChatMessages, ensureChatThread, fetchCoachAccount } from "./chat";
 import { fetchAccount, updateLocalAccount } from "./cloud-accounts";
+import { encodeFinalSequenceMessage, loadFinalSequence } from "./final-sequence";
 
 export const ONBOARDING_FINAL_MESSAGE = "placeholder\nplaceholder";
 
@@ -158,16 +159,19 @@ export async function answerClientOnboarding(
       );
     }
   } else {
-    messages.push(
-      coachMessage(
-        clientId,
-        "final-sequence",
-        threadId,
-        coach.id,
-        ONBOARDING_FINAL_MESSAGE,
-        now + 1,
-      ),
-    );
+    const sequence = loadFinalSequence();
+    sequence.messages.forEach((message, index) => {
+      messages.push(
+        coachMessage(
+          clientId,
+          `final-sequence:${sequence.version}:${index}`,
+          threadId,
+          coach.id,
+          encodeFinalSequenceMessage(message),
+          now + index + 1,
+        ),
+      );
+    });
   }
 
   await appendLocalChatMessages(messages);

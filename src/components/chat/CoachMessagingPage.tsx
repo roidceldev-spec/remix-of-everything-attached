@@ -1,7 +1,7 @@
 import { Bot, MessagesSquare, Radio } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CoachChatInbox } from "./CoachChatInbox";
+import { FinalSequenceEditor } from "./FinalSequenceEditor";
 
 export function CoachMessagingPage() {
   return (
@@ -34,21 +34,7 @@ export function CoachMessagingPage() {
         </TabsContent>
 
         <TabsContent value="automations" className="mt-6">
-          <div className="rounded-xl border border-border bg-card p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold text-card-foreground">Final Sequence</h2>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  Customize the ordered Coach messages Clients receive at the end of onboarding.
-                </p>
-              </div>
-              <Badge variant="secondary">Next feature</Badge>
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              The editor, message ordering, links, popup lines, preview, and Save changes workflow
-              are documented and will be implemented next.
-            </p>
-          </div>
+          <FinalSequenceEditor />
         </TabsContent>
 
         <TabsContent value="broadcasts" className="mt-6">
