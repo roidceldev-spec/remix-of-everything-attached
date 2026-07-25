@@ -72,7 +72,7 @@ export async function createAccount(input: {
     username,
     role: input.role,
     isPreview: false,
-    onboardingStep: input.role === "coach" ? 5 : 0,
+    onboardingStep: input.role === "coach" ? 6 : 0,
     onboardingCompletedAt: input.role === "coach" ? new Date().toISOString() : undefined,
     createdAt: new Date().toISOString(),
   };

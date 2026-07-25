@@ -82,7 +82,7 @@ export function ClientOnboardingChat({
   }, [messages]);
 
   const chooseAnswer = async (answer: string) => {
-    if (!flow || flow.step < 1 || flow.step > 4 || submitting) return;
+    if (!flow || flow.step < 1 || flow.step > 5 || submitting) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -101,7 +101,7 @@ export function ClientOnboardingChat({
   };
 
   const enterApp = async () => {
-    if (!flow || flow.step !== 5 || submitting) return;
+    if (!flow || flow.step !== 6 || submitting) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -116,8 +116,8 @@ export function ClientOnboardingChat({
   };
 
   const question =
-    flow && flow.step >= 1 && flow.step <= 4
-      ? CLIENT_ONBOARDING_QUESTIONS[flow.step as 1 | 2 | 3 | 4]
+    flow && flow.step >= 1 && flow.step <= 5
+      ? CLIENT_ONBOARDING_QUESTIONS[flow.step as 1 | 2 | 3 | 4 | 5]
       : null;
 
   return (
@@ -193,7 +193,7 @@ export function ClientOnboardingChat({
             </div>
           )}
 
-          {flow?.step === 5 && !flow.completedAt && (
+          {flow?.step === 6 && !flow.completedAt && (
             <Button
               type="button"
               disabled={submitting}
