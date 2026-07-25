@@ -76,14 +76,15 @@ Status: implemented locally in the current development patch; requires deploymen
 
 ## Feature 2 — Coach Messaging page shell
 
-Status: not implemented.
+Status: implemented; requires deployment and browser verification.
 
-- [ ] Add fourth Coach bottom-navigation item: Messaging.
-- [ ] Add sections/tabs: Conversations, Automations, Broadcasts.
-- [ ] Move existing one-to-one chat inbox into Conversations.
-- [ ] Decide whether the header Chat shortcut remains.
-- [ ] Add Automations landing section.
-- [ ] Add Broadcasts placeholder until broadcast behavior is fully specified.
+- [x] Add fourth Coach bottom-navigation item: Messaging.
+- [x] Add sections/tabs: Conversations, Automations, Broadcasts.
+- [x] Move existing one-to-one chat inbox into Conversations.
+- [x] Keep the header Chat icon as a shortcut to Messaging.
+- [x] Add Automations landing section with Final Sequence as the next feature.
+- [x] Add Broadcasts placeholder until broadcast behavior is fully specified.
+- [ ] Browser-test navigation, tabs, chat detail return path, and mobile four-item layout.
 
 ## Feature 3 — Coach-controlled Final Sequence editor
 
