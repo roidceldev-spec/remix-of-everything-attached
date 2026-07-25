@@ -3,8 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { AlertCircle, ChevronRight, MessageCircle, RotateCw } from "lucide-react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { type CoachChatConversation, fetchCoachChatInbox } from "@/lib/chat";
+import { LOCAL_ACCOUNTS_CHANGED_EVENT, LOCAL_CHAT_CHANGED_EVENT } from "@/lib/local-events";
 import { cn } from "@/lib/utils";
 import { useChat } from "./ChatProvider";
 
@@ -23,7 +23,7 @@ export function CoachChatInbox() {
       await refreshUnread();
     } catch (nextError) {
       console.error(nextError);
-      setError("Chats could not be loaded from Cloud.");
+      setError("Local chats could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -32,26 +32,14 @@ export function CoachChatInbox() {
   useEffect(() => {
     void load();
     if (account?.role !== "coach") return;
-    const channel = supabase
-      .channel(`coach-chat-inbox-${account.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "chat_threads" },
-        () => void load(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages" },
-        () => void load(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "chat_reads" },
-        () => void load(),
-      )
-      .subscribe();
+    const onChange = () => void load();
+    window.addEventListener(LOCAL_CHAT_CHANGED_EVENT, onChange);
+    window.addEventListener(LOCAL_ACCOUNTS_CHANGED_EVENT, onChange);
+    window.addEventListener("storage", onChange);
     return () => {
-      void supabase.removeChannel(channel);
+      window.removeEventListener(LOCAL_CHAT_CHANGED_EVENT, onChange);
+      window.removeEventListener(LOCAL_ACCOUNTS_CHANGED_EVENT, onChange);
+      window.removeEventListener("storage", onChange);
     };
   }, [account, load]);
 

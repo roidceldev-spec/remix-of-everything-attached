@@ -4,8 +4,7 @@ import { getWeightUnit } from "./coach-weight-units";
 import type { ProgramWorkout } from "./coach-workouts";
 import type { SessionResultsMap } from "./coach-workout-preview";
 import { computeSummary, resultKey } from "./coach-workout-preview";
-import { supabase } from "@/integrations/supabase/client";
-import type { Json, Tables } from "@/integrations/supabase/types";
+import { emitLocalEvent, LOCAL_WORKOUT_HISTORY_CHANGED_EVENT } from "./local-events";
 
 export type WorkoutSessionUnitSnapshot = {
   id: string;
@@ -62,8 +61,6 @@ export type WorkoutHistorySession = {
   data: WorkoutSessionData;
 };
 
-type WorkoutSessionRow = Tables<"workout_sessions">;
-
 export function createWorkoutSessionId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -80,52 +77,8 @@ function unitSnapshot(unit: WeightUnit): WorkoutSessionUnitSnapshot {
   return { id: unit.id, longForm: unit.longForm, shortForm: unit.shortForm };
 }
 
-function asJson(value: unknown): Json {
-  return JSON.parse(JSON.stringify(value)) as Json;
-}
-
 function nonNegativeInteger(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
-}
-
-function volumeRecord(value: Json): Record<string, number> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  const normalized: Record<string, number> = {};
-  for (const [key, candidate] of Object.entries(value)) {
-    if (typeof candidate === "number" && Number.isFinite(candidate) && candidate >= 0) {
-      normalized[key] = candidate;
-    }
-  }
-  return normalized;
-}
-
-function sessionData(value: Json): WorkoutSessionData {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { version: 1, exercises: [] };
-  }
-  const raw = value as Record<string, Json | undefined>;
-  if (raw.version !== 1 || !Array.isArray(raw.exercises)) {
-    return { version: 1, exercises: [] };
-  }
-  return value as unknown as WorkoutSessionData;
-}
-
-function mapSession(row: WorkoutSessionRow): WorkoutHistorySession {
-  return {
-    id: row.id,
-    clientId: row.client_id,
-    programId: row.program_id ?? undefined,
-    workoutId: row.workout_id,
-    workoutName: row.workout_name,
-    startedAt: row.started_at,
-    completedAt: row.completed_at,
-    durationSeconds: nonNegativeInteger(row.duration_seconds),
-    completedSets: nonNegativeInteger(row.completed_sets),
-    totalSets: nonNegativeInteger(row.total_sets),
-    totalReps: nonNegativeInteger(row.total_reps),
-    volumeByUnitId: volumeRecord(row.volume_by_unit),
-    data: sessionData(row.session_data),
-  };
 }
 
 export function buildWorkoutSessionData({
@@ -209,46 +162,45 @@ export async function saveWorkoutSession({
   const startedAtIso = new Date(completedAt.getTime() - normalizedDuration * 1000).toISOString();
   const data = buildWorkoutSessionData({ workout, exercises, weightUnits, results });
 
-  const { data: inserted, error } = await supabase
-    .from("workout_sessions")
-    .insert({
-      id: sessionId,
-      client_id: clientId,
-      program_id: programId ?? null,
-      workout_id: workout.id,
-      workout_name: workout.name,
-      started_at: startedAtIso,
-      completed_at: completedAtIso,
-      duration_seconds: normalizedDuration,
-      completed_sets: summary.completedSets,
-      total_sets: totalSets,
-      total_reps: summary.totalReps,
-      volume_by_unit: asJson(summary.volumeByUnitId),
-      session_data: asJson(data),
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    if (error.code === "23505") {
-      const { data: existing, error: fetchError } = await supabase
-        .from("workout_sessions")
-        .select("*")
-        .eq("id", sessionId)
-        .maybeSingle();
-      if (!fetchError && existing) return mapSession(existing);
-    }
-    throw error;
-  }
-  return mapSession(inserted);
+  const session: WorkoutHistorySession = {
+    id: sessionId,
+    clientId,
+    programId,
+    workoutId: workout.id,
+    workoutName: workout.name,
+    startedAt: startedAtIso,
+    completedAt: completedAtIso,
+    durationSeconds: normalizedDuration,
+    completedSets: summary.completedSets,
+    totalSets,
+    totalReps: summary.totalReps,
+    volumeByUnitId: summary.volumeByUnitId,
+    data,
+  };
+  const sessions = readSessions();
+  const existing = sessions.find((candidate) => candidate.id === sessionId);
+  if (existing) return existing;
+  window.localStorage.setItem(WORKOUT_HISTORY_STORAGE_KEY, JSON.stringify([...sessions, session]));
+  emitLocalEvent(LOCAL_WORKOUT_HISTORY_CHANGED_EVENT);
+  return session;
 }
 
 export async function fetchWorkoutSessions(clientId: string): Promise<WorkoutHistorySession[]> {
-  const { data, error } = await supabase
-    .from("workout_sessions")
-    .select("*")
-    .eq("client_id", clientId)
-    .order("completed_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []).map(mapSession);
+  return readSessions()
+    .filter((session) => session.clientId === clientId)
+    .sort((left, right) => right.completedAt.localeCompare(left.completedAt));
+}
+
+const WORKOUT_HISTORY_STORAGE_KEY = "no-more-copium:workout-history:v2";
+
+function readSessions(): WorkoutHistorySession[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed: unknown = JSON.parse(
+      window.localStorage.getItem(WORKOUT_HISTORY_STORAGE_KEY) ?? "[]",
+    );
+    return Array.isArray(parsed) ? (parsed as WorkoutHistorySession[]) : [];
+  } catch {
+    return [];
+  }
 }

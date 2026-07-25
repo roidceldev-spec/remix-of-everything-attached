@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
-import { GoogleAuthButton } from "@/components/account/GoogleAuthButton";
 import { useVerticalSectionPager } from "@/hooks/use-vertical-section-pager";
 import { RotatingHeadline } from "./RotatingHeadline";
 import { TransformationSection } from "./TransformationSection";
@@ -168,7 +168,13 @@ function ValueSection({ active }: { active: boolean }) {
           ))}
         </ul>
 
-        <GoogleAuthButton tabIndex={active ? 0 : -1} className="mt-[clamp(1.2rem,3dvh,2.2rem)]" />
+        <Link
+          to="/access"
+          tabIndex={active ? 0 : -1}
+          className="mt-[clamp(1.2rem,3dvh,2.2rem)] inline-flex min-h-12 w-full items-center justify-center rounded-full border border-black/10 bg-white px-6 text-sm font-semibold text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f8f8f8] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        >
+          Continue
+        </Link>
       </div>
     </section>
   );

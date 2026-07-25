@@ -1,5 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
-import type { Json, Tables } from "@/integrations/supabase/types";
+import { emitLocalEvent, LOCAL_PROGRESS_PICTURES_CHANGED_EVENT } from "./local-events";
+import { getLocalBlob, putLocalBlob } from "./local-media";
 import {
   createProgressBatchId,
   type ProcessedProgressPicture,
@@ -8,57 +8,27 @@ import {
 import type { ProgressPicture, ProgressPictureBatch } from "./progress-pictures";
 import { sortProgressPictureBatches } from "./progress-pictures";
 
-export const PROGRESS_PICTURES_BUCKET = "progress-pictures";
-const SIGNED_URL_SECONDS = 60 * 60;
+const METADATA_KEY = "no-more-copium:progress-picture-batches:v2";
 
-type BatchRow = Tables<"progress_picture_batches">;
-type PictureRow = Tables<"progress_pictures">;
+type StoredPicture = Omit<ProgressPicture, "imageUrl">;
+type StoredBatch = Omit<ProgressPictureBatch, "pictures"> & { pictures: StoredPicture[] };
 
 export async function fetchProgressPictureBatches(
   clientId: string,
 ): Promise<ProgressPictureBatch[]> {
-  const { data: batchRows, error: batchError } = await supabase
-    .from("progress_picture_batches")
-    .select("*")
-    .eq("client_id", clientId)
-    .order("capture_date", { ascending: false })
-    .order("created_at", { ascending: false });
-  if (batchError) throw batchError;
-  if (!batchRows || batchRows.length === 0) return [];
-
-  const batchIds = batchRows.map((batch) => batch.id);
-  const { data: pictureRows, error: pictureError } = await supabase
-    .from("progress_pictures")
-    .select("*")
-    .in("batch_id", batchIds)
-    .order("display_order", { ascending: true });
-  if (pictureError) throw pictureError;
-
-  const pictures = pictureRows ?? [];
-  const paths = pictures.map((picture) => picture.storage_path);
-  const signedUrls = new Map<string, string>();
-  if (paths.length > 0) {
-    const { data: signedRows, error: signedError } = await supabase.storage
-      .from(PROGRESS_PICTURES_BUCKET)
-      .createSignedUrls(paths, SIGNED_URL_SECONDS);
-    if (signedError) throw signedError;
-    paths.forEach((path, index) => {
-      const signedUrl = signedRows?.[index]?.signedUrl;
-      if (signedUrl) signedUrls.set(path, signedUrl);
-    });
-  }
-
-  const picturesByBatch = new Map<string, ProgressPicture[]>();
-  for (const row of pictures) {
-    const picture = mapPicture(row, signedUrls.get(row.storage_path) ?? "");
-    const existing = picturesByBatch.get(row.batch_id);
-    if (existing) existing.push(picture);
-    else picturesByBatch.set(row.batch_id, [picture]);
-  }
-
-  return sortProgressPictureBatches(
-    batchRows.map((batch) => mapBatch(batch, picturesByBatch.get(batch.id) ?? [])),
+  const batches = readBatches().filter((batch) => batch.clientId === clientId);
+  const hydrated = await Promise.all(
+    batches.map(async (batch) => ({
+      ...batch,
+      pictures: await Promise.all(
+        batch.pictures.map(async (picture) => {
+          const blob = await getLocalBlob(`progress:${picture.storagePath}`);
+          return { ...picture, imageUrl: blob ? URL.createObjectURL(blob) : "" };
+        }),
+      ),
+    })),
   );
+  return sortProgressPictureBatches(hydrated);
 }
 
 export async function uploadProgressPictureBatch({
@@ -76,81 +46,50 @@ export async function uploadProgressPictureBatch({
   existingBatch?: ProgressPictureBatch;
   onProgress?: (uploaded: number, total: number) => void;
 }): Promise<string> {
-  const existingCount = existingBatch?.pictures.length ?? 0;
+  const batches = readBatches();
+  const storedExisting = existingBatch
+    ? batches.find((batch) => batch.id === existingBatch.id && batch.clientId === clientId)
+    : undefined;
+  const existingCount = storedExisting?.pictures.length ?? 0;
   if (pictures.length < 1 || existingCount + pictures.length > 6) {
     throw new Error(`Select between 1 and ${Math.max(0, 6 - existingCount)} progress pictures.`);
   }
-  if (existingBatch && existingBatch.clientId !== clientId) {
-    throw new Error("The selected batch does not belong to this Client.");
-  }
-  if (existingBatch && existingBatch.captureDate !== captureDate) {
-    throw new Error("The selected date does not match this progress-picture batch.");
-  }
 
-  const batchId = existingBatch?.id ?? createProgressBatchId();
-  const uploadedPaths: string[] = [];
-  try {
-    for (let index = 0; index < pictures.length; index += 1) {
-      const picture = pictures[index];
-      const storagePath = progressPictureStoragePath({
-        clientId,
-        batchId,
-        pictureId: picture.id,
-      });
-      uploadedPaths.push(storagePath);
-      await uploadProgressPictureObject({ clientId, batchId, picture, storagePath });
-      onProgress?.(index + 1, pictures.length);
-    }
-
-    const pictureMetadata = pictures.map((picture, index) => ({
+  const batchId = storedExisting?.id ?? createProgressBatchId();
+  const createdAt = storedExisting?.createdAt ?? new Date().toISOString();
+  const storedPictures: StoredPicture[] = [];
+  for (let index = 0; index < pictures.length; index += 1) {
+    const picture = pictures[index];
+    const storagePath = progressPictureStoragePath({ clientId, batchId, pictureId: picture.id });
+    await putLocalBlob(`progress:${storagePath}`, picture.blob);
+    storedPictures.push({
       id: picture.id,
-      storage_path: progressPictureStoragePath({ clientId, batchId, pictureId: picture.id }),
+      storagePath,
       width: picture.width,
       height: picture.height,
-      byte_size: picture.byteSize,
-      display_order: existingCount + index,
-    }));
-
-    const error = existingBatch
-      ? (
-          await supabase.rpc("append_progress_pictures_to_batch", {
-            p_batch_id: batchId,
-            p_client_id: clientId,
-            p_pictures: pictureMetadata as unknown as Json,
-          })
-        ).error
-      : (
-          await supabase.rpc("create_progress_picture_batch", {
-            p_batch_id: batchId,
-            p_client_id: clientId,
-            p_capture_date: captureDate,
-            p_timezone: timezone,
-            p_pictures: pictureMetadata as unknown as Json,
-            p_preview_picture_id: pictures[randomIndex(pictures.length)].id,
-          })
-        ).error;
-
-    if (error) {
-      const pictureIds = pictures.map((picture) => picture.id);
-      const { data: committedPictures } = await supabase
-        .from("progress_pictures")
-        .select("id")
-        .eq("batch_id", batchId)
-        .in("id", pictureIds);
-      if (committedPictures?.length === pictures.length) return batchId;
-      throw error;
-    }
-    return batchId;
-  } catch (error) {
-    if (uploadedPaths.length > 0) {
-      try {
-        await cleanupProgressPictureObjects({ clientId, paths: uploadedPaths });
-      } catch (cleanupError) {
-        console.error("Failed to clean up progress-picture uploads", cleanupError);
-      }
-    }
-    throw error;
+      byteSize: picture.byteSize,
+      displayOrder: existingCount + index,
+      createdAt: new Date().toISOString(),
+    });
+    onProgress?.(index + 1, pictures.length);
   }
+
+  const previewPictureId =
+    storedExisting?.previewPictureId ??
+    storedPictures[Math.floor(Math.random() * storedPictures.length)].id;
+  const nextBatch: StoredBatch = {
+    id: batchId,
+    clientId,
+    captureDate,
+    timezone,
+    previewPictureId,
+    pictures: [...(storedExisting?.pictures ?? []), ...storedPictures],
+    createdAt,
+  };
+  const next = batches.filter((batch) => batch.id !== batchId);
+  next.push(nextBatch);
+  writeBatches(next);
+  return batchId;
 }
 
 export async function setProgressPicturePreview({
@@ -162,84 +101,31 @@ export async function setProgressPicturePreview({
   batchId: string;
   pictureId: string;
 }): Promise<void> {
-  const { error } = await supabase.rpc("set_progress_picture_preview", {
-    p_client_id: clientId,
-    p_batch_id: batchId,
-    p_picture_id: pictureId,
-  });
-  if (error) throw error;
+  const batches = readBatches();
+  const batch = batches.find(
+    (candidate) => candidate.id === batchId && candidate.clientId === clientId,
+  );
+  if (!batch || !batch.pictures.some((picture) => picture.id === pictureId)) {
+    throw new Error("Progress picture was not found on this device.");
+  }
+  writeBatches(
+    batches.map((candidate) =>
+      candidate.id === batchId ? { ...candidate, previewPictureId: pictureId } : candidate,
+    ),
+  );
 }
 
-async function uploadProgressPictureObject({
-  clientId,
-  batchId,
-  picture,
-  storagePath,
-}: {
-  clientId: string;
-  batchId: string;
-  picture: ProcessedProgressPicture;
-  storagePath: string;
-}): Promise<void> {
-  const body = new FormData();
-  body.append("action", "upload");
-  body.append("clientId", clientId);
-  body.append("batchId", batchId);
-  body.append("pictureId", picture.id);
-  body.append("file", picture.blob, `${picture.id}.webp`);
-  const { data, error } = await supabase.functions.invoke("progress-picture-media", {
-    body,
-  });
-  if (error) throw new Error(`Progress picture upload failed: ${error.message}`);
-  if (!data || typeof data !== "object" || (data as { path?: unknown }).path !== storagePath) {
-    throw new Error("Progress picture upload returned an unexpected path.");
+function readBatches(): StoredBatch[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(METADATA_KEY) ?? "[]");
+    return Array.isArray(parsed) ? (parsed as StoredBatch[]) : [];
+  } catch {
+    return [];
   }
 }
 
-async function cleanupProgressPictureObjects({
-  clientId,
-  paths,
-}: {
-  clientId: string;
-  paths: string[];
-}): Promise<void> {
-  const { error } = await supabase.functions.invoke("progress-picture-media", {
-    body: { action: "cleanup", clientId, paths },
-  });
-  if (error) throw error;
-}
-
-function randomIndex(length: number): number {
-  if (length <= 1) return 0;
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-    const value = new Uint32Array(1);
-    crypto.getRandomValues(value);
-    return value[0] % length;
-  }
-  return Math.floor(Math.random() * length);
-}
-
-function mapBatch(row: BatchRow, pictures: ProgressPicture[]): ProgressPictureBatch {
-  return {
-    id: row.id,
-    clientId: row.client_id,
-    captureDate: row.capture_date,
-    timezone: row.timezone,
-    previewPictureId: row.preview_picture_id ?? undefined,
-    pictures,
-    createdAt: row.created_at,
-  };
-}
-
-function mapPicture(row: PictureRow, imageUrl: string): ProgressPicture {
-  return {
-    id: row.id,
-    imageUrl,
-    storagePath: row.storage_path,
-    width: row.width,
-    height: row.height,
-    byteSize: row.byte_size,
-    displayOrder: row.display_order,
-    createdAt: row.created_at,
-  };
+function writeBatches(batches: StoredBatch[]): void {
+  window.localStorage.setItem(METADATA_KEY, JSON.stringify(batches));
+  emitLocalEvent(LOCAL_PROGRESS_PICTURES_CHANGED_EVENT);
 }

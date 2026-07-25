@@ -180,7 +180,7 @@ export function ProgressPictureUploadDialog({
           </DialogTitle>
           <DialogDescription>
             Add up to six pictures per date. They are resized, converted to WebP, and stripped of
-            camera metadata before upload.
+            camera metadata before local storage.
           </DialogDescription>
         </DialogHeader>
 
@@ -336,8 +336,8 @@ export function ProgressPictureUploadDialog({
         )}
 
         <p className="text-xs text-muted-foreground">
-          The original files are not uploaded. This remains a passwordless prototype, so do not use
-          sensitive real-client photos.
+          The original files never leave this device. This remains a passwordless prototype, so do
+          not use sensitive real-client photos.
         </p>
 
         <DialogFooter>

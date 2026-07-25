@@ -21,16 +21,16 @@ const CLIENT_NAV_ITEMS: ClientNavItem[] = [
 export function ClientShell() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const navigate = useNavigate();
-  const { user, account, loading } = useAccount();
+  const { account, loading } = useAccount();
 
   useEffect(() => {
     if (loading) return;
     if (account?.role === "client" && !account.onboardingCompletedAt) {
       void navigate({ to: "/onboarding", replace: true });
     } else if (account?.role !== "client") {
-      void navigate({ to: user && !account ? "/onboarding" : "/", replace: true });
+      void navigate({ to: "/access", replace: true });
     }
-  }, [account, loading, navigate, user]);
+  }, [account, loading, navigate]);
 
   if (loading || account?.role !== "client" || !account.onboardingCompletedAt) {
     return <div className="min-h-[100dvh] bg-background" />;

@@ -25,7 +25,7 @@ export function useProgramCoverUrls(programs: readonly ProgramSummary[]) {
       })
       .catch((nextError: unknown) => {
         console.error("Failed to load program covers", nextError);
-        if (!cancelled) setError("Program covers could not be loaded from Cloud.");
+        if (!cancelled) setError("Program covers could not be loaded from this device.");
       });
     return () => {
       cancelled = true;

@@ -4,7 +4,6 @@ import { AlertCircle, ArrowLeft, LoaderCircle, Send } from "lucide-react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
 import {
   MAX_CHAT_MESSAGE_LENGTH,
   type ChatMessage,
@@ -16,6 +15,7 @@ import {
   sendChatMessage,
 } from "@/lib/chat";
 import { fetchAccount, type AppAccount } from "@/lib/cloud-accounts";
+import { LOCAL_CHAT_CHANGED_EVENT } from "@/lib/local-events";
 import { ChatMessageBubble } from "./ChatMessageBubble";
 import { useChat } from "./ChatProvider";
 
@@ -55,7 +55,7 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       })
       .catch((nextError: unknown) => {
         console.error(nextError);
-        if (!cancelled) setError("This conversation could not be loaded from Cloud.");
+        if (!cancelled) setError("This local conversation could not be loaded.");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -67,46 +67,17 @@ export function ChatConversation({ clientId }: { clientId: string }) {
 
   useEffect(() => {
     if (!threadId || !account) return;
-    const channel = supabase
-      .channel(`chat-thread-${threadId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-          filter: `thread_id=eq.${threadId}`,
-        },
-        (payload) => {
-          const row = payload.new as {
-            id: string;
-            thread_id: string;
-            sender_account_id: string;
-            body: string;
-            created_at: string;
-          };
-          setMessages((current) =>
-            current.some((message) => message.id === row.id)
-              ? current
-              : [
-                  ...current,
-                  {
-                    id: row.id,
-                    threadId: row.thread_id,
-                    senderAccountId: row.sender_account_id,
-                    body: row.body,
-                    createdAt: row.created_at,
-                  },
-                ],
-          );
-          void markChatRead(account.id, clientId).then(refreshUnread).catch(console.error);
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
+    const onChatChanged = () => {
+      void loadMessages(threadId);
+      void markChatRead(account.id, clientId).then(refreshUnread).catch(console.error);
     };
-  }, [account, clientId, refreshUnread, threadId]);
+    window.addEventListener(LOCAL_CHAT_CHANGED_EVENT, onChatChanged);
+    window.addEventListener("storage", onChatChanged);
+    return () => {
+      window.removeEventListener(LOCAL_CHAT_CHANGED_EVENT, onChatChanged);
+      window.removeEventListener("storage", onChatChanged);
+    };
+  }, [account, clientId, loadMessages, refreshUnread, threadId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
