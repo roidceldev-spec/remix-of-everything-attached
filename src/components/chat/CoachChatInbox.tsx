@@ -8,7 +8,7 @@ import { LOCAL_ACCOUNTS_CHANGED_EVENT, LOCAL_CHAT_CHANGED_EVENT } from "@/lib/lo
 import { cn } from "@/lib/utils";
 import { useChat } from "./ChatProvider";
 
-export function CoachChatInbox() {
+export function CoachChatInbox({ showHeader = true }: { showHeader?: boolean }) {
   const { account } = useAccount();
   const { refreshUnread } = useChat();
   const [conversations, setConversations] = useState<CoachChatConversation[]>([]);
@@ -47,12 +47,14 @@ export function CoachChatInbox() {
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Chats</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Read and reply to messages from your clients.
-        </p>
-      </div>
+      {showHeader && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Chats</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Read and reply to messages from your clients.
+          </p>
+        </div>
+      )}
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading chats…</p>

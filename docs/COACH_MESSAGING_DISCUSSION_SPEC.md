@@ -28,7 +28,7 @@ Add a fourth Coach bottom-navigation item:
 - Library
 - Messaging
 
-The page name and three-section structure are approved. Whether the existing header Chat icon remains as a shortcut is still pending discussion.
+The page name and three-section structure are approved. The existing header Chat icon remains as a shortcut to Messaging → Conversations.
 
 ## Messaging page — initial feature
 
@@ -157,7 +157,7 @@ No broadcast implementation should begin until these behaviors are approved.
 
 - [x] Final page name: Messaging.
 - [x] Existing one-to-one chats move into the Conversations section.
-- [ ] Decide whether the current header Chat icon remains as a shortcut.
+- [x] Keep the current header Chat icon as a shortcut to Messaging → Conversations.
 - [x] Page sections/tabs: Conversations, Automations, Broadcasts.
 
 ### Final Sequence editing

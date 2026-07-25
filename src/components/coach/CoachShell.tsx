@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Library, ListChecks } from "lucide-react";
+import { LayoutDashboard, Library, ListChecks, MessageCircle } from "lucide-react";
 import { useEffect, type ComponentType } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
 import { SettingsMenu } from "@/components/account/SettingsMenu";
@@ -7,7 +7,7 @@ import { ChatButton } from "@/components/chat/ChatButton";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
-  to: "/coach/dashboard" | "/coach/programs" | "/coach/library";
+  to: "/coach/dashboard" | "/coach/programs" | "/coach/library" | "/coach/chat";
   label: string;
   icon: ComponentType<{ className?: string }>;
 };
@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/coach/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/coach/programs", label: "Program Manager", icon: ListChecks },
   { to: "/coach/library", label: "Library", icon: Library },
+  { to: "/coach/chat", label: "Messaging", icon: MessageCircle },
 ];
 
 export function CoachShell() {
@@ -33,6 +34,7 @@ export function CoachShell() {
   const isProgramsActive =
     pathname === "/coach/programs" || pathname.startsWith("/coach/programs/");
   const isLibraryActive = pathname === "/coach/library" || pathname.startsWith("/coach/library/");
+  const isMessagingActive = pathname === "/coach/chat" || pathname.startsWith("/coach/chat/");
 
   if (loading || account?.role !== "coach") {
     return <div className="min-h-[100dvh] bg-background" />;
@@ -76,7 +78,9 @@ export function CoachShell() {
                   ? isDashboardActive
                   : item.to === "/coach/library"
                     ? isLibraryActive
-                    : pathname === item.to;
+                    : item.to === "/coach/chat"
+                      ? isMessagingActive
+                      : pathname === item.to;
             const Icon = item.icon;
             return (
               <li key={item.to} className="flex-1">
