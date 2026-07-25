@@ -1,0 +1,186 @@
+# No More Copium — Local Prototype Development Checklist
+
+Last updated: 2026-07-25
+
+Current repository: `https://github.com/nihalttmogs-beep/everything-attached`
+
+Current architecture: fully local browser prototype. Lovable is used only for preview, publishing, GitHub synchronization, and patch application. Supabase/Lovable Cloud runtime code is disabled and archived under `cloud-archive/supabase/`.
+
+Detailed requirement sources:
+
+- `docs/ONBOARDING_DISCUSSION_SPEC.md`
+- `docs/COACH_MESSAGING_DISCUSSION_SPEC.md`
+- `docs/JOIN_REQUESTS_DISCUSSION_SPEC.md`
+
+Cloud-specific requirements inside those historical documents are deferred until the production Cloud rebuild. Product copy, sequencing, UI behavior, and permission rules remain authoritative unless this checklist explicitly adapts them to local-only development.
+
+## Current project comparison
+
+### Implemented and verified
+
+- [x] Fully local passwordless account picker.
+- [x] Visible Coach/Client role choice.
+- [x] Exactly one local Coach allowed.
+- [x] Coach must be created before Clients.
+- [x] Local account switching.
+- [x] Local Coach programs, exercises, workouts, units, and assignments.
+- [x] Local Workout History.
+- [x] Local Coach/Client chat on the same browser.
+- [x] Local onboarding progress and chat history.
+- [x] Client free text blocked before onboarding completion.
+- [x] Progress Picture metadata stored locally.
+- [x] Progress Picture files stored in IndexedDB.
+- [x] Program covers stored in IndexedDB.
+- [x] Previous Cloud source preserved under `cloud-archive/supabase/`.
+- [x] Runtime Supabase and managed-auth dependencies removed.
+
+### Existing basic onboarding
+
+- [x] Greeting uses the Client's name.
+- [x] Question 1 and its three options.
+- [x] Question 2 and its two options.
+- [x] Question 3 and its three options.
+- [x] Question 4 and its two options.
+- [x] Selected options persist as Client chat messages.
+- [x] Coach questions persist as Coach chat messages.
+- [x] Final two-line placeholder message.
+- [x] Second placeholder opens the almost-full-screen empty popup.
+- [x] Enter app completes onboarding.
+
+## Feature 1 — Personalized onboarding and readiness sequence
+
+Status: implemented locally in the current development patch; requires deployment and browser verification.
+
+- [x] `0–2 times a week` personalized response.
+- [x] `3–4 times a week` personalized response.
+- [x] `5–6 times a week` personalized response.
+- [x] Preserve exact spelling `Mirin`.
+- [x] `Gym` intentionally skips a personalized response.
+- [x] `Home` personalized response.
+- [x] `Below 30 minutes` personalized response.
+- [x] `Around one hour` personalized response.
+- [x] `1.5–2 hours` personalized response.
+- [x] `Beginner / not the best` personalized response.
+- [x] `Experienced / correct form and technique` personalized response.
+- [x] Send each personalized response immediately after the matching Client answer.
+- [x] Send each next question as a separate Coach message.
+- [x] Add the “Can't wait to see your progress…” readiness message.
+- [x] Add “Are you ready for the unfair advantage?” as a separate Coach message.
+- [x] Add exactly one option: `Hell yeah`.
+- [x] Persist `Hell yeah` as a Client message.
+- [x] Send the existing final placeholder sequence after `Hell yeah`.
+- [x] Use deterministic onboarding message IDs to prevent duplicate messages after retries.
+- [ ] Browser-test every branch.
+- [ ] Refresh after every step and confirm correct resume behavior.
+- [ ] Confirm no duplicate messages after retry.
+
+## Feature 2 — Coach Messaging page shell
+
+Status: not implemented.
+
+- [ ] Add fourth Coach bottom-navigation item: Messaging.
+- [ ] Add sections/tabs: Conversations, Automations, Broadcasts.
+- [ ] Move existing one-to-one chat inbox into Conversations.
+- [ ] Decide whether the header Chat shortcut remains.
+- [ ] Add Automations landing section.
+- [ ] Add Broadcasts placeholder until broadcast behavior is fully specified.
+
+## Feature 3 — Coach-controlled Final Sequence editor
+
+Status: not implemented.
+
+- [ ] Add Final Sequence section under Messaging → Automations.
+- [ ] Add multiple messages.
+- [ ] Edit messages.
+- [ ] Delete messages.
+- [ ] Reorder messages.
+- [ ] Add plain-text lines.
+- [ ] Add external-link lines with visible text and URL fields.
+- [ ] Open external links in a new tab with `noopener noreferrer`.
+- [ ] Reject unsafe/malformed URL schemes.
+- [ ] Add popup-link lines that open the existing almost-full-screen popup.
+- [ ] Reorder lines inside a message.
+- [ ] Preview messages using Client chat-bubble styling.
+- [ ] Add manual Save changes action with confirmation.
+- [ ] Warn before discarding unsaved changes.
+- [ ] Save active sequence versions locally.
+- [ ] Capture one consistent active version when a Client enters the final sequence.
+- [ ] Never alter already-sent history.
+- [ ] Prevent duplicate final-sequence messages after refresh/retry.
+- [ ] Decide maximum messages, lines, and character lengths.
+- [ ] Decide delete confirmation/undo behavior.
+
+## Feature 4 — Local image chat and Join Requests
+
+Status: not implemented.
+
+Local-only adaptation: image blobs and request metadata use IndexedDB/localStorage instead of Cloud Storage/RLS/Edge Functions. Cross-device behavior is intentionally unavailable until Cloud is rebuilt.
+
+### Client
+
+- [ ] Replace immediate Enter app with post-final-sequence image-only waiting state.
+- [ ] Keep Client free text disabled while waiting.
+- [ ] Add camera/gallery controls.
+- [ ] Allow one to six images per send.
+- [ ] Allow unlimited sends over time within browser storage capacity.
+- [ ] Process metadata-stripped WebP, maximum 1920px edge and 2.5 MB each.
+- [ ] Store chat image blobs in IndexedDB.
+- [ ] Store image message metadata locally.
+- [ ] Create one pending Join Request after the first successful image.
+- [ ] Allow additional images while pending.
+- [ ] Show Awaiting Coach approval.
+- [ ] Preserve full onboarding history and images.
+
+### Coach
+
+- [ ] Add Join Requests section to Coach Dashboard.
+- [ ] Show pending count.
+- [ ] List name, username, request time, image count, and unread state.
+- [ ] Label test/local preview requests clearly if a preview account is reintroduced.
+- [ ] Open complete conversation and images.
+- [ ] Allow ordinary Coach text messages while Client replies remain image-only.
+- [ ] Add Approve-only action.
+- [ ] Add approval confirmation: “Approve this Client and unlock the app?”
+- [ ] Make approval idempotent.
+- [ ] Remove approved requests from pending list.
+- [ ] Unlock normal Client routes after approval.
+- [ ] Enable Client free text after approval.
+- [ ] Keep image sending available after approval.
+
+## Feature 5 — Broadcasts
+
+Status: requirements incomplete; do not implement yet.
+
+- [ ] Decide all Clients versus selected recipients.
+- [ ] Decide whether local test/preview accounts are included.
+- [ ] Decide immediate versus scheduled delivery.
+- [ ] Decide persistent chat message versus notification-only delivery.
+- [ ] Define confirmation and cancellation behavior.
+- [ ] Define delivery status and retry/idempotency behavior.
+
+## Feature 6 — Local development utilities
+
+- [ ] Consider a Coach-only Reset Client onboarding action for branch testing.
+- [ ] Consider local data export/import before future Cloud migration.
+- [ ] Add a clear Local prototype indicator in Settings.
+- [ ] Add a destructive Clear local test data action with confirmation.
+- [ ] Document that browser/site-data clearing removes all local data.
+
+## Deferred production work
+
+- [ ] Rebuild real authentication.
+- [ ] Rebuild private production RLS.
+- [ ] Rebuild cross-device accounts and chat.
+- [ ] Rebuild private media Storage.
+- [ ] Rebuild Edge Functions and Realtime.
+- [ ] Migrate selected local prototype structures to the new Cloud model.
+- [ ] Select and integrate an approved merchant payment provider if required.
+
+## Immediate execution order
+
+1. Deploy and verify Feature 1.
+2. Implement Feature 2.
+3. Implement Feature 3.
+4. Implement Feature 4.
+5. Specify Feature 5 before coding it.
+6. Add Feature 6 utilities as needed for testing.
