@@ -62,7 +62,7 @@ export function TransformationSection({
         )}
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-[38%] h-[34%] bg-gradient-to-b from-transparent via-black/75 to-black" />
+      <div className="landing-image-fade pointer-events-none absolute inset-x-0 top-[30%] h-[50%]" />
 
       <div className="absolute inset-x-0 bottom-[calc(1.2rem+env(safe-area-inset-bottom))] z-[2] px-5">
         <div className="mx-auto max-w-md" aria-live="polite">

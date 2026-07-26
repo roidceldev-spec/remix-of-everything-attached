@@ -159,18 +159,50 @@
   }
 }
 
+/* Universal readable-size floor. JFL, look at this. establishes the 1rem minimum. */
+[class*="text-xs"],
+[class*="text-sm"],
+[class*="text-[9px]"],
+[class*="text-[10px]"],
+[class*="text-[11px]"],
+[class*="text-[0.8rem]"],
+[class*="clamp(0.72rem"] {
+  font-size: 1rem !important;
+  line-height: 1.45rem !important;
+}
+
 /* Public landing experience */
 .landing-display {
   font-optical-sizing: auto;
   text-wrap: balance;
 }
 
+.landing-image-fade {
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0%) 0%,
+    rgb(0 0 0 / 4%) 16%,
+    rgb(0 0 0 / 18%) 31%,
+    rgb(0 0 0 / 48%) 51%,
+    rgb(0 0 0 / 82%) 72%,
+    rgb(0 0 0 / 97%) 90%,
+    #000 100%
+  );
+}
+
+.landing-headline-in,
+.landing-headline-out {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
 .landing-headline-in {
-  animation: landing-headline-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-name: landing-headline-in;
 }
 
 .landing-headline-out {
-  animation: landing-headline-out 500ms cubic-bezier(0.7, 0, 0.84, 0) both;
+  animation-name: landing-headline-out;
 }
 
 .landing-swipe-chevron {
@@ -179,23 +211,19 @@
 
 @keyframes landing-headline-in {
   from {
-    opacity: 0;
-    transform: translate3d(0, -112%, 0);
+    transform: translate3d(0, -100%, 0);
   }
   to {
-    opacity: 1;
     transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes landing-headline-out {
   from {
-    opacity: 1;
     transform: translate3d(0, 0, 0);
   }
   to {
-    opacity: 0;
-    transform: translate3d(0, 112%, 0);
+    transform: translate3d(0, 100%, 0);
   }
 }
 

@@ -192,6 +192,26 @@ Status: implemented; requires deployment and browser verification.
 - [x] Clear all No More Copium localStorage keys and IndexedDB blobs.
 - [ ] Browser-test export/download, import/restore, reset, clear, and mobile Settings scrolling.
 
+## Feature 7 — Landing and universal UI overhaul
+
+Status: implemented in development; requires deployment and browser verification.
+
+- [x] Enforce the `JFL, look at this.` 1rem minimum text size universally.
+- [x] Preserve larger headings and display typography.
+- [x] Keep each rotating headline static for exactly 1,000ms.
+- [x] Use a simultaneous 500ms outgoing/incoming vertical transition.
+- [x] Remove normal-motion opacity overlap and mismatched easing.
+- [x] Add a smooth multi-stop image-to-black blend to Sections 1 and 2.
+- [x] Preserve Section 3 gradient.
+- [x] Keep the price title at the top with `$29/month` highlighted red.
+- [x] Replace six bullet points with compact bordered value cards.
+- [x] Put highlighted lead and unhighlighted body on separate lines.
+- [x] Add six approved minimal red icons.
+- [x] Preserve exact value-card order and copy.
+- [ ] Browser-test animation timing, gradients, minimum text size, card fit, icons, and Android viewport clipping.
+
+Detailed specification: `docs/LANDING_UI_OVERHAUL_SPEC.md`
+
 ## Deferred production work
 
 - [ ] Rebuild real authentication.
