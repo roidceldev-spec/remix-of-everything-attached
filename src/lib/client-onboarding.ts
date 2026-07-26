@@ -180,14 +180,6 @@ export async function answerClientOnboarding(
   return { threadId, step: nextStep };
 }
 
-export async function completeClientOnboarding(clientId: string): Promise<string> {
-  const client = await requireClient(clientId);
-  if (client.onboardingStep !== 6) throw new Error("Complete every onboarding step first.");
-  const completedAt = client.onboardingCompletedAt ?? new Date().toISOString();
-  await updateLocalAccount(clientId, { onboardingStep: 6, onboardingCompletedAt: completedAt });
-  return completedAt;
-}
-
 function coachMessage(
   clientId: string,
   key: string,

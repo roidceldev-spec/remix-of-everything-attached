@@ -8,10 +8,11 @@ import {
   CLIENT_ONBOARDING_QUESTIONS,
   type ClientOnboardingState,
   answerClientOnboarding,
-  completeClientOnboarding,
   initializeClientOnboarding,
 } from "@/lib/client-onboarding";
 import type { AppAccount } from "@/lib/cloud-accounts";
+import { LOCAL_JOIN_REQUESTS_CHANGED_EVENT, fetchJoinRequest } from "@/lib/local-join-requests";
+import { ChatImageUploadDialog } from "./ChatImageUploadDialog";
 import { ChatMessageBubble } from "./ChatMessageBubble";
 import { useChat } from "./ChatProvider";
 
@@ -30,6 +31,7 @@ export function ClientOnboardingChat({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [joinRequestPending, setJoinRequestPending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const loadMessages = useCallback(async (threadId: string) => {
@@ -40,12 +42,14 @@ export function ClientOnboardingChat({
     setLoading(true);
     setError(null);
     try {
-      const [nextFlow, nextCoach] = await Promise.all([
+      const [nextFlow, nextCoach, nextRequest] = await Promise.all([
         initializeClientOnboarding(account.id),
         fetchCoachAccount(),
+        fetchJoinRequest(account.id),
       ]);
       setFlow(nextFlow);
       setCoach(nextCoach);
+      setJoinRequestPending(nextRequest?.status === "pending");
       await loadMessages(nextFlow.threadId);
       await markChatRead(account.id, account.id);
       await refreshUnread();
@@ -100,20 +104,23 @@ export function ClientOnboardingChat({
     }
   };
 
-  const enterApp = async () => {
-    if (!flow || flow.step !== 6 || submitting) return;
-    setSubmitting(true);
-    setError(null);
-    try {
-      await completeClientOnboarding(account.id);
-      await refresh();
-      await onCompleted();
-    } catch (nextError) {
-      console.error("Client onboarding completion failed", nextError);
-      setError("The app could not be opened. Please try again.");
-      setSubmitting(false);
-    }
-  };
+  useEffect(() => {
+    if (flow?.step !== 6) return;
+    const checkApproval = async () => {
+      const request = await fetchJoinRequest(account.id);
+      setJoinRequestPending(request?.status === "pending");
+      if (request?.status === "approved") {
+        await refresh();
+        await onCompleted();
+      }
+    };
+    window.addEventListener(LOCAL_JOIN_REQUESTS_CHANGED_EVENT, checkApproval);
+    window.addEventListener("storage", checkApproval);
+    return () => {
+      window.removeEventListener(LOCAL_JOIN_REQUESTS_CHANGED_EVENT, checkApproval);
+      window.removeEventListener("storage", checkApproval);
+    };
+  }, [account.id, flow?.step, onCompleted, refresh]);
 
   const question =
     flow && flow.step >= 1 && flow.step <= 5
@@ -194,14 +201,28 @@ export function ClientOnboardingChat({
           )}
 
           {flow?.step === 6 && !flow.completedAt && (
-            <Button
-              type="button"
-              disabled={submitting}
-              className="min-h-12 w-full rounded-full"
-              onClick={() => void enterApp()}
-            >
-              {submitting ? "Opening app…" : "Enter app"}
-            </Button>
+            <div className="space-y-3">
+              <div className="rounded-xl border border-border bg-muted/40 px-3 py-2.5">
+                <p className="text-sm font-medium text-foreground">
+                  {joinRequestPending
+                    ? "Awaiting Coach approval"
+                    : "Send at least one image to request access"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Free-text replies stay disabled. You can continue sending images while waiting.
+                </p>
+              </div>
+              <ChatImageUploadDialog
+                clientId={account.id}
+                senderAccountId={account.id}
+                buttonLabel={joinRequestPending ? "Send more images" : "Send images"}
+                onSent={async () => {
+                  if (flow.threadId) await loadMessages(flow.threadId);
+                  setJoinRequestPending(true);
+                  await refreshUnread();
+                }}
+              />
+            </div>
           )}
         </div>
       </footer>

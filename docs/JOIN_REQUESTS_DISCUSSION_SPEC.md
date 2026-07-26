@@ -1,6 +1,6 @@
 # No More Copium — Join Requests and Image-Only Pending Onboarding
 
-Status: discussion backlog; not implemented.
+Status: implemented for the local-only browser prototype; production Cloud implementation is deferred.
 
 Last updated: 2026-07-24
 

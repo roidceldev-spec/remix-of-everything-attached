@@ -16,6 +16,12 @@ import {
 } from "@/lib/chat";
 import { fetchAccount, type AppAccount } from "@/lib/cloud-accounts";
 import { LOCAL_CHAT_CHANGED_EVENT } from "@/lib/local-events";
+import {
+  LOCAL_JOIN_REQUESTS_CHANGED_EVENT,
+  approveJoinRequest,
+  fetchJoinRequest,
+} from "@/lib/local-join-requests";
+import { ChatImageUploadDialog } from "./ChatImageUploadDialog";
 import { ChatMessageBubble } from "./ChatMessageBubble";
 import { useChat } from "./ChatProvider";
 
@@ -28,6 +34,8 @@ export function ChatConversation({ clientId }: { clientId: string }) {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [joinRequestPending, setJoinRequestPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +59,10 @@ export function ChatConversation({ clientId }: { clientId: string }) {
         setPeer(nextPeer);
         await loadMessages(nextThreadId);
         await markChatRead(account.id, clientId);
+        if (account.role === "coach") {
+          const request = await fetchJoinRequest(clientId);
+          setJoinRequestPending(request?.status === "pending");
+        }
         await refreshUnread();
       })
       .catch((nextError: unknown) => {
@@ -78,6 +90,20 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       window.removeEventListener("storage", onChatChanged);
     };
   }, [account, clientId, loadMessages, refreshUnread, threadId]);
+
+  useEffect(() => {
+    if (account?.role !== "coach") return;
+    const refreshRequest = async () => {
+      const request = await fetchJoinRequest(clientId);
+      setJoinRequestPending(request?.status === "pending");
+    };
+    window.addEventListener(LOCAL_JOIN_REQUESTS_CHANGED_EVENT, refreshRequest);
+    window.addEventListener("storage", refreshRequest);
+    return () => {
+      window.removeEventListener(LOCAL_JOIN_REQUESTS_CHANGED_EVENT, refreshRequest);
+      window.removeEventListener("storage", refreshRequest);
+    };
+  }, [account?.role, clientId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
@@ -108,6 +134,23 @@ export function ChatConversation({ clientId }: { clientId: string }) {
     }
   };
 
+  const approve = async () => {
+    if (account.role !== "coach" || !joinRequestPending || approving) return;
+    if (!window.confirm("Approve this Client and unlock the app?")) return;
+    setApproving(true);
+    setError(null);
+    try {
+      await approveJoinRequest({ clientId, coachId: account.id });
+      setJoinRequestPending(false);
+    } catch (nextError) {
+      setError(
+        nextError instanceof Error ? nextError.message : "The Join Request could not be approved.",
+      );
+    } finally {
+      setApproving(false);
+    }
+  };
+
   const backTo = account.role === "coach" ? "/coach/chat" : "/client/dashboard";
 
   return (
@@ -128,6 +171,20 @@ export function ChatConversation({ clientId }: { clientId: string }) {
           {peer && <p className="truncate text-xs text-muted-foreground">@{peer.username}</p>}
         </div>
       </div>
+
+      {account.role === "coach" && joinRequestPending && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Pending Join Request</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Review the complete onboarding conversation and submitted images.
+            </p>
+          </div>
+          <Button type="button" disabled={approving} onClick={() => void approve()}>
+            {approving ? "Approving…" : "Approve Client"}
+          </Button>
+        </div>
+      )}
 
       <div className="flex-1 space-y-3 py-4" aria-live="polite">
         {loading ? (
@@ -160,6 +217,17 @@ export function ChatConversation({ clientId }: { clientId: string }) {
 
       <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] rounded-lg border border-border bg-background p-2 shadow-sm">
         <div className="flex items-end gap-2">
+          {account.role === "client" && (
+            <ChatImageUploadDialog
+              clientId={clientId}
+              senderAccountId={account.id}
+              iconOnly
+              onSent={async () => {
+                if (threadId) await loadMessages(threadId);
+                await refreshUnread();
+              }}
+            />
+          )}
           <Textarea
             value={draft}
             onChange={(event) => setDraft(event.target.value)}

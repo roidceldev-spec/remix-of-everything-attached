@@ -5,17 +5,31 @@ import {
   fetchPublicCoachAccount,
 } from "./cloud-accounts";
 import { emitLocalEvent, LOCAL_CHAT_CHANGED_EVENT } from "./local-events";
+import { deleteLocalBlob, getLocalBlob, putLocalBlob } from "./local-media";
+import { recordJoinRequestImage } from "./local-join-requests";
+import type { ProcessedProgressPicture } from "./progress-picture-processing";
 
 export const MAX_CHAT_MESSAGE_LENGTH = 2000;
 const THREADS_KEY = "no-more-copium:chat-threads:v2";
 const MESSAGES_KEY = "no-more-copium:chat-messages:v2";
 const READS_KEY = "no-more-copium:chat-reads:v2";
 
+export type ChatImageAttachment = {
+  id: string;
+  storageKey: string;
+  width: number;
+  height: number;
+  byteSize: number;
+  createdAt: string;
+  imageUrl?: string;
+};
+
 export type ChatMessage = {
   id: string;
   threadId: string;
   senderAccountId: string;
   body: string;
+  attachments?: ChatImageAttachment[];
   createdAt: string;
 };
 
@@ -85,7 +99,11 @@ export async function fetchCoachChatInbox(coachId: string): Promise<CoachChatCon
       return {
         client,
         threadId: thread?.id,
-        lastMessageBody: latest?.body,
+        lastMessageBody:
+          latest?.body ||
+          (latest?.attachments?.length
+            ? `Sent ${latest.attachments.length} image${latest.attachments.length === 1 ? "" : "s"}`
+            : undefined),
         lastMessageSenderId: latest?.senderAccountId,
         lastMessageAt: latest?.createdAt,
         unreadMessages: unread.byClientId[client.id] ?? 0,
@@ -122,9 +140,22 @@ export async function ensureChatThread(clientId: string): Promise<string> {
 }
 
 export async function fetchChatMessages(threadId: string): Promise<ChatMessage[]> {
-  return read<ChatMessage[]>(MESSAGES_KEY, [])
+  const messages = read<ChatMessage[]>(MESSAGES_KEY, [])
     .filter((message) => message.threadId === threadId)
     .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
+  return Promise.all(
+    messages.map(async (message) => ({
+      ...message,
+      attachments: message.attachments
+        ? await Promise.all(
+            message.attachments.map(async (attachment) => {
+              const blob = await getLocalBlob(attachment.storageKey);
+              return { ...attachment, imageUrl: blob ? URL.createObjectURL(blob) : undefined };
+            }),
+          )
+        : undefined,
+    })),
+  );
 }
 
 export async function sendChatMessage({
@@ -158,6 +189,63 @@ export async function sendChatMessage({
     },
   ]);
   return messageId;
+}
+
+export async function sendChatImages({
+  senderAccountId,
+  clientId,
+  pictures,
+  onProgress,
+}: {
+  senderAccountId: string;
+  clientId: string;
+  pictures: ProcessedProgressPicture[];
+  onProgress?: (completed: number, total: number) => void;
+}): Promise<string> {
+  if (pictures.length < 1 || pictures.length > 6) throw new Error("Select between 1 and 6 images.");
+  const sender = await fetchAccount(senderAccountId);
+  if (!sender || sender.role !== "client" || sender.id !== clientId) {
+    throw new Error("Only the active local Client can send images in this prototype.");
+  }
+  if (sender.onboardingStep < 6)
+    throw new Error("Finish the Final Sequence before sending images.");
+
+  const threadId = await ensureChatThread(clientId);
+  const messageId = createChatMessageId();
+  const storedKeys: string[] = [];
+  try {
+    const attachments: ChatImageAttachment[] = [];
+    for (let index = 0; index < pictures.length; index += 1) {
+      const picture = pictures[index];
+      const storageKey = `chat-image:${clientId}:${messageId}:${picture.id}`;
+      await putLocalBlob(storageKey, picture.blob);
+      storedKeys.push(storageKey);
+      attachments.push({
+        id: picture.id,
+        storageKey,
+        width: picture.width,
+        height: picture.height,
+        byteSize: picture.byteSize,
+        createdAt: new Date().toISOString(),
+      });
+      onProgress?.(index + 1, pictures.length);
+    }
+    appendMessages([
+      {
+        id: messageId,
+        threadId,
+        senderAccountId,
+        body: "",
+        attachments,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
+    await recordJoinRequestImage({ clientId, threadId, imageCount: attachments.length });
+    return messageId;
+  } catch (error) {
+    await Promise.all(storedKeys.map((key) => deleteLocalBlob(key).catch(() => undefined)));
+    throw error;
+  }
 }
 
 export async function appendLocalChatMessages(messages: ChatMessage[]): Promise<void> {
