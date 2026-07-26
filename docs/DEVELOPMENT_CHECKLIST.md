@@ -179,11 +179,18 @@ Status: implemented; requires deployment and browser verification.
 
 ## Feature 6 — Local development utilities
 
-- [ ] Consider a Coach-only Reset Client onboarding action for branch testing.
-- [ ] Consider local data export/import before future Cloud migration.
-- [ ] Add a clear Local prototype indicator in Settings.
-- [ ] Add a destructive Clear local test data action with confirmation.
-- [ ] Document that browser/site-data clearing removes all local data.
+Status: implemented; requires deployment and browser verification.
+
+- [x] Coach-only Reset Client onboarding action with confirmation.
+- [x] Reset removes that Client's local chat, image attachments, reads, Join Request, completion, and onboarding progress.
+- [x] Export all No More Copium localStorage data and IndexedDB blobs to one JSON backup.
+- [x] Validate and import a backup after destructive confirmation.
+- [x] Reject unsupported, oversized, malformed, or invalid-image backup data before clearing current data.
+- [x] Add a clear Local prototype indicator in Settings.
+- [x] Explain that data exists only in this browser.
+- [x] Add Clear all local test data with explicit destructive confirmation.
+- [x] Clear all No More Copium localStorage keys and IndexedDB blobs.
+- [ ] Browser-test export/download, import/restore, reset, clear, and mobile Settings scrolling.
 
 ## Deferred production work
 
@@ -195,11 +202,13 @@ Status: implemented; requires deployment and browser verification.
 - [ ] Migrate selected local prototype structures to the new Cloud model.
 - [ ] Select and integrate an approved merchant payment provider if required.
 
-## Immediate execution order
+## Local feature execution status
 
-1. Deploy and verify Feature 1.
-2. Implement Feature 2.
-3. Implement Feature 3.
-4. Implement Feature 4.
-5. Specify Feature 5 before coding it.
-6. Add Feature 6 utilities as needed for testing.
+1. Feature 1 implemented; browser verification remains.
+2. Feature 2 implemented; browser verification remains.
+3. Feature 3 implemented; browser verification remains.
+4. Feature 4 implemented; browser verification remains.
+5. Feature 5 implemented; browser verification remains.
+6. Feature 6 implemented; browser verification remains.
+
+The next development work should come from new product requirements or targeted browser-test findings. Production Cloud work remains deferred.
