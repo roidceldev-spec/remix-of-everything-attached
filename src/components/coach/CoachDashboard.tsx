@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Users } from "lucide-react";
 import { type AppAccount, fetchAccounts } from "@/lib/cloud-accounts";
+import { JoinRequestsSection } from "./JoinRequestsSection";
 
 export function CoachDashboard() {
   const [clients, setClients] = useState<AppAccount[]>([]);
@@ -24,6 +25,8 @@ export function CoachDashboard() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">Manage your clients.</p>
       </div>
+
+      <JoinRequestsSection />
 
       <section aria-labelledby="clients-heading" className="space-y-3">
         <div className="flex items-center justify-between gap-3">

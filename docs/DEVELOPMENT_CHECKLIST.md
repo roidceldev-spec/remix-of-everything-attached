@@ -115,40 +115,52 @@ Status: implemented; requires deployment and browser verification.
 
 ## Feature 4 — Local image chat and Join Requests
 
-Status: not implemented.
+Status: implemented; requires deployment and browser verification.
 
 Local-only adaptation: image blobs and request metadata use IndexedDB/localStorage instead of Cloud Storage/RLS/Edge Functions. Cross-device behavior is intentionally unavailable until Cloud is rebuilt.
 
 ### Client
 
-- [ ] Replace immediate Enter app with post-final-sequence image-only waiting state.
-- [ ] Keep Client free text disabled while waiting.
-- [ ] Add camera/gallery controls.
-- [ ] Allow one to six images per send.
-- [ ] Allow unlimited sends over time within browser storage capacity.
-- [ ] Process metadata-stripped WebP, maximum 1920px edge and 2.5 MB each.
-- [ ] Store chat image blobs in IndexedDB.
-- [ ] Store image message metadata locally.
-- [ ] Create one pending Join Request after the first successful image.
-- [ ] Allow additional images while pending.
-- [ ] Show Awaiting Coach approval.
-- [ ] Preserve full onboarding history and images.
+- [x] Replace immediate Enter app with post-final-sequence image-only waiting state.
+- [x] Keep Client free text disabled while waiting.
+- [x] Add camera/gallery controls.
+- [x] Allow one to six images per send.
+- [x] Allow unlimited sends over time within browser storage capacity.
+- [x] Process metadata-stripped WebP, maximum 1920px edge and 2.5 MB each.
+- [x] Store chat image blobs in IndexedDB.
+- [x] Store image message metadata locally.
+- [x] Create one pending Join Request after the first successful image.
+- [x] Allow additional images while pending.
+- [x] Show Awaiting Coach approval.
+- [x] Preserve full onboarding history and images.
 
 ### Coach
 
-- [ ] Add Join Requests section to Coach Dashboard.
-- [ ] Show pending count.
-- [ ] List name, username, request time, image count, and unread state.
-- [ ] Label test/local preview requests clearly if a preview account is reintroduced.
-- [ ] Open complete conversation and images.
-- [ ] Allow ordinary Coach text messages while Client replies remain image-only.
-- [ ] Add Approve-only action.
-- [ ] Add approval confirmation: “Approve this Client and unlock the app?”
-- [ ] Make approval idempotent.
-- [ ] Remove approved requests from pending list.
-- [ ] Unlock normal Client routes after approval.
-- [ ] Enable Client free text after approval.
-- [ ] Keep image sending available after approval.
+- [x] Add Join Requests section to Coach Dashboard.
+- [x] Show pending count.
+- [x] List name, username, request time, image count, and unread state.
+- [x] Label test/local preview requests clearly if a preview account is reintroduced.
+- [x] Open complete conversation and images.
+- [x] Allow ordinary Coach text messages while Client replies remain image-only.
+- [x] Add Approve-only action.
+- [x] Add approval confirmation: “Approve this Client and unlock the app?”
+- [x] Make approval idempotent.
+- [x] Remove approved requests from pending list.
+- [x] Unlock normal Client routes after approval.
+- [x] Enable Client free text after approval.
+- [x] Keep image sending available after approval.
+
+### Feature 4 browser verification
+
+- [ ] Test one-image and six-image sends.
+- [ ] Test staging removal and image-processing errors.
+- [ ] Confirm first image creates one pending Join Request.
+- [ ] Confirm additional images do not duplicate the request.
+- [ ] Confirm pending Client has image-only replies and no free text.
+- [ ] Confirm Coach sees full history and full-size images.
+- [ ] Confirm Approve requires confirmation and unlocks the Client.
+- [ ] Confirm approved normal chat supports both text and images.
+- [ ] Confirm refresh preserves images, request state, and approval.
 
 ## Feature 5 — Broadcasts
 
