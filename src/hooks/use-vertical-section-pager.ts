@@ -1,9 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  LANDING_SCROLL_EDGE_EPSILON,
+  resolveLandingSectionDrag,
+  resolveLandingSectionWheel,
+} from "@/lib/landing-section-scroll";
 
 const SWIPE_DISTANCE = 36;
 const SWIPE_VELOCITY = 500;
 
 type Point = { y: number; time: number };
+
+type DragState = {
+  pointerId: number;
+  startY: number;
+  startPosition: number;
+  history: Point[];
+  scrollElement: HTMLElement | null;
+  startScrollTop: number;
+};
 
 export function useVerticalSectionPager(
   sectionCount: number,
@@ -17,12 +31,7 @@ export function useVerticalSectionPager(
   const wheelLockedRef = useRef(false);
   const wheelTimerRef = useRef<number | null>(null);
   const didDragRef = useRef(false);
-  const dragRef = useRef<{
-    pointerId: number;
-    startY: number;
-    startPosition: number;
-    history: Point[];
-  } | null>(null);
+  const dragRef = useRef<DragState | null>(null);
   const [index, setIndexState] = useState(0);
 
   const viewportHeight = useCallback(
@@ -122,26 +131,44 @@ export function useVerticalSectionPager(
     stopAnimation();
     didDragRef.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
+    const scrollElement = findSectionScroller(event.target);
     dragRef.current = {
       pointerId: event.pointerId,
       startY: event.clientY,
       startPosition: positionRef.current,
       history: [{ y: event.clientY, time: performance.now() }],
+      scrollElement,
+      startScrollTop: scrollElement?.scrollTop ?? 0,
     };
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
+    const rawDelta = event.clientY - drag.startY;
+    if (Math.abs(rawDelta) > 10) didDragRef.current = true;
+    drag.history.push({ y: event.clientY, time: performance.now() });
+    if (drag.history.length > 5) drag.history.shift();
+
+    if (drag.scrollElement) {
+      const maxScrollTop = Math.max(
+        0,
+        drag.scrollElement.scrollHeight - drag.scrollElement.clientHeight,
+      );
+      const resolution = resolveLandingSectionDrag(drag.startScrollTop, maxScrollTop, rawDelta);
+      drag.scrollElement.scrollTop = resolution.scrollTop;
+      if (!resolution.handToPager) {
+        setPosition(drag.startPosition);
+        return;
+      }
+    }
+
     const height = viewportHeight();
-    let delta = event.clientY - drag.startY;
-    if (Math.abs(delta) > 10) didDragRef.current = true;
+    let delta = rawDelta;
     const atFirst = indexRef.current === 0 && delta > 0;
     const atLast = indexRef.current === sectionCount - 1 && delta < 0;
     if (atFirst || atLast) delta = rubberband(delta, height);
     setPosition(drag.startPosition + delta);
-    drag.history.push({ y: event.clientY, time: performance.now() });
-    if (drag.history.length > 5) drag.history.shift();
   };
 
   const finishPointer = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -149,6 +176,12 @@ export function useVerticalSectionPager(
     if (!drag || drag.pointerId !== event.pointerId) return;
     dragRef.current = null;
     const delta = event.clientY - drag.startY;
+
+    if (drag.scrollElement && (drag.startScrollTop > LANDING_SCROLL_EDGE_EPSILON || delta < 0)) {
+      goTo(indexRef.current);
+      return;
+    }
+
     const velocity = releaseVelocity(drag.history);
     if (delta < -SWIPE_DISTANCE || velocity < -SWIPE_VELOCITY) {
       goTo(indexRef.current + 1, velocity);
@@ -161,9 +194,19 @@ export function useVerticalSectionPager(
 
   const onWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     event.preventDefault();
-    if (wheelLockedRef.current || Math.abs(event.deltaY) < 6) return;
+    const deltaY = normalizedWheelDelta(event);
+    const scrollElement = findSectionScroller(event.target);
+
+    if (scrollElement) {
+      const maxScrollTop = Math.max(0, scrollElement.scrollHeight - scrollElement.clientHeight);
+      const resolution = resolveLandingSectionWheel(scrollElement.scrollTop, maxScrollTop, deltaY);
+      scrollElement.scrollTop = resolution.scrollTop;
+      if (!resolution.handToPager) return;
+    }
+
+    if (wheelLockedRef.current || Math.abs(deltaY) < 6) return;
     wheelLockedRef.current = true;
-    goTo(indexRef.current + (event.deltaY > 0 ? 1 : -1), -event.deltaY * 7);
+    goTo(indexRef.current + (deltaY > 0 ? 1 : -1), -deltaY * 7);
     if (wheelTimerRef.current !== null) window.clearTimeout(wheelTimerRef.current);
     wheelTimerRef.current = window.setTimeout(() => {
       wheelLockedRef.current = false;
@@ -171,10 +214,36 @@ export function useVerticalSectionPager(
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (["ArrowDown", "PageDown", " "].includes(event.key)) {
+    if (isInteractiveTarget(event.target)) return;
+
+    const scrollElement = currentSectionScroller(trackRef.current, indexRef.current);
+    const maxScrollTop = scrollElement
+      ? Math.max(0, scrollElement.scrollHeight - scrollElement.clientHeight)
+      : 0;
+    const isDownKey = ["ArrowDown", "PageDown", " "].includes(event.key);
+    const isUpKey = ["ArrowUp", "PageUp"].includes(event.key);
+
+    if (scrollElement && isDownKey && scrollElement.scrollTop < maxScrollTop - 1) {
+      event.preventDefault();
+      scrollElement.scrollBy({
+        top: keyScrollDistance(event.key, scrollElement.clientHeight),
+        behavior: preferredScrollBehavior(),
+      });
+      return;
+    }
+    if (scrollElement && isUpKey && scrollElement.scrollTop > LANDING_SCROLL_EDGE_EPSILON) {
+      event.preventDefault();
+      scrollElement.scrollBy({
+        top: -keyScrollDistance(event.key, scrollElement.clientHeight),
+        behavior: preferredScrollBehavior(),
+      });
+      return;
+    }
+
+    if (isDownKey) {
       event.preventDefault();
       goTo(indexRef.current + 1);
-    } else if (["ArrowUp", "PageUp"].includes(event.key)) {
+    } else if (isUpKey) {
       event.preventDefault();
       goTo(indexRef.current - 1);
     }
@@ -202,6 +271,38 @@ export function useVerticalSectionPager(
       onClickCapture,
     },
   };
+}
+
+function findSectionScroller(target: EventTarget | null): HTMLElement | null {
+  return target instanceof Element ? target.closest<HTMLElement>("[data-section-scroll]") : null;
+}
+
+function currentSectionScroller(track: HTMLDivElement | null, index: number): HTMLElement | null {
+  const section = track?.children.item(index);
+  if (!(section instanceof HTMLElement)) return null;
+  if (section.matches("[data-section-scroll]")) return section;
+  return section.querySelector<HTMLElement>("[data-section-scroll]");
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest("a, button, input, textarea, select, [contenteditable='true']"))
+  );
+}
+
+function normalizedWheelDelta(event: React.WheelEvent<HTMLDivElement>): number {
+  if (event.deltaMode === 1) return event.deltaY * 24;
+  if (event.deltaMode === 2) return event.deltaY * event.currentTarget.clientHeight;
+  return event.deltaY;
+}
+
+function keyScrollDistance(key: string, viewport: number): number {
+  return key === "ArrowDown" || key === "ArrowUp" ? 72 : viewport * 0.82;
+}
+
+function preferredScrollBehavior(): ScrollBehavior {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
 function releaseVelocity(history: Point[]): number {
