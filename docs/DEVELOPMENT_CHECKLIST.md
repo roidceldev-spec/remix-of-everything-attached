@@ -164,14 +164,18 @@ Local-only adaptation: image blobs and request metadata use IndexedDB/localStora
 
 ## Feature 5 — Broadcasts
 
-Status: requirements incomplete; do not implement yet.
+Status: implemented; requires deployment and browser verification.
 
-- [ ] Decide all Clients versus selected recipients.
-- [ ] Decide whether local test/preview accounts are included.
-- [ ] Decide immediate versus scheduled delivery.
-- [ ] Decide persistent chat message versus notification-only delivery.
-- [ ] Define confirmation and cancellation behavior.
-- [ ] Define delivery status and retry/idempotency behavior.
+- [x] Coach can choose all Clients or selected Clients.
+- [x] Immediate delivery only in the local prototype.
+- [x] Every recipient receives a permanent Coach chat message and unread state.
+- [x] Broadcast editor supports text, HTTPS external links, and one to six images.
+- [x] Confirmation displays the recipient count before sending.
+- [x] One broadcast ID produces deterministic per-Client message IDs.
+- [x] Images are stored once in IndexedDB and referenced by every recipient message.
+- [x] Recent local broadcast history is displayed.
+- [ ] Browser-test all/selected recipients, links, images, confirmation, chat delivery, unread state, and refresh persistence.
+- [ ] Scheduling remains intentionally unavailable while the prototype is local-only.
 
 ## Feature 6 — Local development utilities
 

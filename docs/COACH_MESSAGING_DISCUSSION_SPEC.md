@@ -136,22 +136,25 @@ placeholder
 
 The second line currently opens an almost-full-screen empty popup. This behavior will remain available as the approved **Popup link line** type alongside ordinary text and external hyperlinks. The current popup remains empty until its content editor is specified later.
 
-## Future feature — broadcast to all Clients
+## Broadcasts — local implementation
 
-The Messaging page will later allow the Coach to send one automated/broadcast message to all Clients.
+Messaging → Broadcasts allows the Coach to send an immediate permanent chat message to all Clients or selected Clients.
 
-Details still requiring specification:
+Supported content:
 
-- Immediate send versus scheduling.
-- All Clients versus selected segments.
-- Confirmation screen before sending.
-- Whether Client Preview is included.
-- Delivery as persistent chat messages, in-app notifications, or both.
-- Retry/idempotency behavior.
-- Per-Client delivery status.
-- Whether a broadcast can be cancelled before scheduled delivery.
+- Up to 2,000 characters of text.
+- Any number of validated HTTPS external links within practical UI limits.
+- One to six processed WebP images.
 
-No broadcast implementation should begin until these behaviors are approved.
+Behavior:
+
+- Confirmation shows the recipient count before sending.
+- Each recipient receives a normal persistent Coach chat message.
+- Existing unread-message behavior applies.
+- Images are stored once in IndexedDB and referenced by every recipient message.
+- Recent broadcast history is stored locally and shown to the Coach.
+- Scheduling is intentionally unavailable because local delivery cannot run while the browser is closed.
+- Cloud delivery status and production retries are deferred until the future Cloud rebuild.
 
 ## Discussion checklist
 
@@ -190,7 +193,9 @@ No broadcast implementation should begin until these behaviors are approved.
 
 ### Broadcasts
 
-- [ ] Define recipients and Client Preview behavior.
-- [ ] Define immediate versus scheduled delivery.
-- [ ] Define confirmation, cancellation, and delivery-status UX.
-- [ ] Define whether broadcasts create persistent chat messages.
+- [x] Recipients: all Clients or selected Clients.
+- [x] Immediate delivery only in the local prototype.
+- [x] Confirmation shows recipient count; sent broadcasts are not cancellable.
+- [x] Broadcasts create persistent Coach chat messages and unread state.
+- [x] Content supports text, validated HTTPS links, and one to six images.
+- [ ] Browser verification remains.

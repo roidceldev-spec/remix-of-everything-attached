@@ -4,6 +4,7 @@ import {
   fetchAccounts,
   fetchPublicCoachAccount,
 } from "./cloud-accounts";
+import { decodeFinalSequenceMessage } from "./final-sequence";
 import { emitLocalEvent, LOCAL_CHAT_CHANGED_EVENT } from "./local-events";
 import { deleteLocalBlob, getLocalBlob, putLocalBlob } from "./local-media";
 import { recordJoinRequestImage } from "./local-join-requests";
@@ -99,11 +100,7 @@ export async function fetchCoachChatInbox(coachId: string): Promise<CoachChatCon
       return {
         client,
         threadId: thread?.id,
-        lastMessageBody:
-          latest?.body ||
-          (latest?.attachments?.length
-            ? `Sent ${latest.attachments.length} image${latest.attachments.length === 1 ? "" : "s"}`
-            : undefined),
+        lastMessageBody: latest ? summarizeMessage(latest) : undefined,
         lastMessageSenderId: latest?.senderAccountId,
         lastMessageAt: latest?.createdAt,
         unreadMessages: unread.byClientId[client.id] ?? 0,
@@ -276,6 +273,15 @@ function appendMessages(additions: ChatMessage[]): void {
   const next = [...messages, ...additions.filter((message) => !existing.has(message.id))];
   write(MESSAGES_KEY, next);
   for (const message of additions) emitLocalEvent(LOCAL_CHAT_CHANGED_EVENT, message);
+}
+
+function summarizeMessage(message: ChatMessage): string {
+  const structured = decodeFinalSequenceMessage(message.body);
+  const structuredText = structured?.lines.map((line) => line.text).join(" · ");
+  if (structuredText) return structuredText;
+  if (message.body) return message.body;
+  const count = message.attachments?.length ?? 0;
+  return count ? `Sent ${count} image${count === 1 ? "" : "s"}` : "Message";
 }
 
 function read<T>(key: string, fallback: T): T {
