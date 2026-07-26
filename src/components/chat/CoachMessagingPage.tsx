@@ -1,5 +1,6 @@
 import { Bot, MessagesSquare, Radio } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BroadcastComposer } from "./BroadcastComposer";
 import { CoachChatInbox } from "./CoachChatInbox";
 import { FinalSequenceEditor } from "./FinalSequenceEditor";
 
@@ -38,14 +39,7 @@ export function CoachMessagingPage() {
         </TabsContent>
 
         <TabsContent value="broadcasts" className="mt-6">
-          <div className="rounded-xl border border-dashed border-border p-8 text-center">
-            <Radio className="mx-auto h-7 w-7 text-muted-foreground" aria-hidden="true" />
-            <h2 className="mt-3 text-sm font-medium text-foreground">Broadcasts are planned</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-              Recipient selection, scheduling, confirmation, and delivery behavior will be finalized
-              before implementation.
-            </p>
-          </div>
+          <BroadcastComposer />
         </TabsContent>
       </Tabs>
     </section>
