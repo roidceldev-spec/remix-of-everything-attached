@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAccount } from "./AccountProvider";
+import { LocalPrototypeTools } from "./LocalPrototypeTools";
 
 export function SettingsMenu() {
   const [open, setOpen] = useState(false);
@@ -30,7 +31,7 @@ export function SettingsMenu() {
           <Settings className="h-5 w-5" aria-hidden="true" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
           {account && (
@@ -55,6 +56,7 @@ export function SettingsMenu() {
           <LogOut className="h-4 w-4" aria-hidden="true" />
           Exit app
         </Button>
+        <LocalPrototypeTools />
       </DialogContent>
     </Dialog>
   );

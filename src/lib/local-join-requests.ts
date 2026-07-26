@@ -56,6 +56,10 @@ export async function recordJoinRequestImage({
   return request;
 }
 
+export function removeLocalJoinRequest(clientId: string): void {
+  writeRequests(readRequests().filter((request) => request.clientId !== clientId));
+}
+
 export async function approveJoinRequest({
   clientId,
   coachId,
