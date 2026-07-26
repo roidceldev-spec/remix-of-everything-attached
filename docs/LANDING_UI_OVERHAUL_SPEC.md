@@ -1,20 +1,21 @@
 # No More Copium — Landing UI Overhaul Specification
 
-Status: implemented in development; requires deployment and browser verification.
+Status: revised in development; requires deployment and browser verification.
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 ## Scope
 
-Landing-only changes apply only to the four-section public landing experience. The readable text-size floor is universal and applies throughout the web app.
+Landing layout changes apply only to the four-section public landing experience. The readable text-size floor and font family are universal throughout the web app.
 
-## Universal readable text floor
+## Universal typography
 
 The text size used by `JFL, look at this.` establishes the minimum readable size:
 
 - Minimum font size: `1rem` / 16px.
 - Existing larger headings and display text remain larger.
 - Tailwind `text-xs`, `text-sm`, responsive small-text variants, and known arbitrary values below 1rem are raised to the minimum.
+- The system UI sans-serif family used by the transformation statistics is explicitly applied throughout the app, including form controls.
 
 ## Section 1 — rotating headline
 
@@ -41,19 +42,38 @@ Timing:
 
 ## Sections 1 and 2 — image-to-black gradient
 
-The white hero placeholder/image and Section 2 transformation image must blend gradually into the black text region.
+The white hero placeholder/image and Section 2 transformation image must blend gradually into the black text region with no visible image-box seam.
 
-The gradient uses a long multi-stop fade:
+The gradient uses a strong multi-stop fade:
 
 - Transparent at the image side.
 - Very light darkening first.
 - Gradual middle blend.
-- Near-black before reaching the text region.
-- Solid black at the end.
+- Near-black before the source image ends.
+- Solid black before and across the image boundary.
 
 Section 3 keeps its existing gradient because it was already visually acceptable.
 
-## Section 4 — price and value cards
+## Proportional placement system
+
+Sections 1–3 use viewport-relative CSS grids rather than bottom-offset content piles:
+
+- Section 1 divides its lower content region into three equal rows. The rotating title, `All with No More Copium`, and swipe cue are centered in rows 1, 2, and 3 respectively.
+- Section 2 uses a 24/44/32 ratio for the status label, statistics, and action. The two-line after label remains centered below the source image on short phone viewports.
+- Section 3 divides its lower region into three equal rows for the quote, supporting line, and swipe cue.
+- Safe-area insets remain part of the available-height calculation.
+- Section 4 is intentionally excluded because it is a vertically scrollable content page.
+
+## Section 2 — transformation labels and statistics
+
+- `Before` is centered below the image.
+- The after label is centered as two lines: `3 months later` and `(All natural)`.
+- Before statistics are `5′5″ manlet`, `Depressed`, and `Lonely`.
+- After statistics are `5′10″` and `Happiness begins`.
+- Feet and inches use typographic prime symbols rather than spelling out `foot`.
+- Labels and statistics use the universal app font family.
+
+## Section 4 — price, value cards, and scrolling
 
 Title remains at the top:
 
@@ -76,17 +96,21 @@ Replace bullet points with six compact long cards. Every card contains:
 2. **1-1 Access to Dethnic**
    - Minimal chat bubble with message lines.
 
-3. **Beginner? Struggling to stay consistent?**
-   - Minimal dumbbell.
+The local `Continue` button appears immediately after card 2. It continues to `/access`; it must not imply Google authentication while the app is a local-only prototype.
 
-4. **Growth Plates Closed?**
+3. **Growth Plates Closed?**
    - Two long bones arranged closely in parallel with a small gap.
+
+4. **Beginner? Struggling to stay consistent?**
+   - Minimal dumbbell.
 
 5. **Best Progress Tracking**
    - Minimal upward-trending line with one downturn/zigzag.
 
 6. **Guided Workouts**
    - Mostly complete circular progress/guidance arc with an intentional gap and a minimal play/guide marker.
+
+The final page scrolls internally when its content is taller than the phone viewport. A gesture that begins while this page is scrolled belongs to its internal content even if it reaches the top. Returning to Section 3 requires a separate outward gesture that starts with the final page already at its top.
 
 All icons:
 
@@ -102,11 +126,17 @@ All icons:
 - [ ] No headline overlap.
 - [ ] Section 1 gradient blends smoothly.
 - [ ] Section 2 gradient blends smoothly.
-- [ ] Section 3 remains unchanged.
+- [ ] Section 3 gradient remains unchanged.
+- [ ] Sections 1–3 place content by their approved grid ratios on short and tall phones.
 - [ ] No web-app text renders below 1rem.
+- [ ] All app text and form controls use the universal system UI sans-serif family.
+- [ ] Transformation labels stay centered below the image.
+- [ ] The after label uses two lines.
+- [ ] Height statistics use prime symbols and the before list has no duplicate `Manlet` item.
 - [ ] Price title remains at the top.
-- [ ] Six value cards render in exact order.
+- [ ] Six value cards render in the revised exact order.
 - [ ] Each body starts on a separate line.
 - [ ] Icon mapping matches the approved specification.
-- [ ] Final Continue button remains usable.
-- [ ] Section 4 fits common Android viewport heights without clipping.
+- [ ] The local Continue button appears after card 2 and remains usable.
+- [ ] Section 4 scrolls internally on short Android viewports without clipping.
+- [ ] Reaching the top of Section 4 does not jump to Section 3 until a separate outward gesture.

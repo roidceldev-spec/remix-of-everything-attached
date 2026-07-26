@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Dumbbell, MessageSquareText, TrendingUp } from "lucide-react";
 import { useVerticalSectionPager } from "@/hooks/use-vertical-section-pager";
@@ -55,27 +55,34 @@ function HeroSection({ active, onContinue }: { active: boolean; onContinue: () =
         className="absolute inset-x-0 top-0 h-[62%] bg-white"
         aria-label="Hero image placeholder"
       />
-      <div className="landing-image-fade pointer-events-none absolute inset-x-0 top-[29%] h-[52%]" />
+      <div className="landing-image-fade pointer-events-none absolute inset-x-0 top-[32%] h-[34%]" />
 
-      <div className="absolute inset-x-0 bottom-[calc(4.8rem+env(safe-area-inset-bottom))] z-[1] px-5">
-        <div className="landing-display text-[clamp(2.15rem,10vw,5.25rem)] font-semibold leading-[0.96] tracking-[-0.045em] text-white">
-          <RotatingHeadline />
+      <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[48%] z-[1] grid grid-rows-3 px-5">
+        <div className="flex min-h-0 items-center justify-center">
+          <div className="landing-display w-full text-[clamp(2.15rem,10vw,5.25rem)] font-semibold leading-[0.96] tracking-[-0.045em] text-white">
+            <RotatingHeadline />
+          </div>
         </div>
-        <p className="mt-2 text-center text-[clamp(1rem,4.5vw,1.4rem)] font-medium tracking-[-0.02em] text-white/78">
-          All with <span className="text-red-500">No More Copium</span>
-        </p>
-      </div>
 
-      <button
-        type="button"
-        onClick={onContinue}
-        tabIndex={active ? 0 : -1}
-        className="group absolute inset-x-0 bottom-[calc(0.8rem+env(safe-area-inset-bottom))] z-[2] mx-auto flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
-        aria-label="Continue to the next section"
-      >
-        <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em]">Swipe down</span>
-      </button>
+        <div className="flex min-h-0 items-center justify-center">
+          <p className="text-center text-[clamp(1rem,4.5vw,1.4rem)] font-medium tracking-[-0.02em] text-white/78">
+            All with <span className="text-red-500">No More Copium</span>
+          </p>
+        </div>
+
+        <div className="flex min-h-0 items-center justify-center">
+          <button
+            type="button"
+            onClick={onContinue}
+            tabIndex={active ? 0 : -1}
+            className="group flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
+            aria-label="Continue to the next section"
+          >
+            <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em]">Swipe down</span>
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
@@ -95,25 +102,32 @@ function HandsSection({ active, onContinue }: { active: boolean; onContinue: () 
       </div>
       <div className="pointer-events-none absolute inset-x-0 top-[41%] h-[34%] bg-gradient-to-b from-transparent via-black/80 to-black" />
 
-      <div className="absolute inset-x-0 bottom-[calc(4.8rem+env(safe-area-inset-bottom))] px-6 text-center">
-        <blockquote className="mx-auto max-w-2xl text-[clamp(1.85rem,8.5vw,4.6rem)] font-semibold leading-[1.02] tracking-[-0.045em] text-white">
-          “You can&apos;t naturally thicken wrist and hands.”
-        </blockquote>
-        <p className="mt-5 text-[clamp(1rem,4.5vw,1.35rem)] font-semibold tracking-[-0.02em] text-red-500">
-          JFL, look at this.
-        </p>
-      </div>
+      <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[58%] grid grid-rows-3 px-6 text-center">
+        <div className="flex min-h-0 items-center justify-center">
+          <blockquote className="mx-auto max-w-2xl text-[clamp(1.85rem,8.5vw,4.6rem)] font-semibold leading-[1.02] tracking-[-0.045em] text-white">
+            “You can&apos;t naturally thicken wrist and hands.”
+          </blockquote>
+        </div>
 
-      <button
-        type="button"
-        onClick={onContinue}
-        tabIndex={active ? 0 : -1}
-        className="absolute inset-x-0 bottom-[calc(0.8rem+env(safe-area-inset-bottom))] z-[2] mx-auto flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
-        aria-label="Continue to the final section"
-      >
-        <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em]">Swipe down</span>
-      </button>
+        <div className="flex min-h-0 items-center justify-center">
+          <p className="text-[clamp(1rem,4.5vw,1.35rem)] font-semibold tracking-[-0.02em] text-red-500">
+            JFL, look at this.
+          </p>
+        </div>
+
+        <div className="flex min-h-0 items-center justify-center">
+          <button
+            type="button"
+            onClick={onContinue}
+            tabIndex={active ? 0 : -1}
+            className="flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
+            aria-label="Continue to the final section"
+          >
+            <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em]">Swipe down</span>
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
@@ -130,14 +144,14 @@ const VALUE_ITEMS = [
     body: "I'll even modify your training program as you go. I'll even personally support you as you go.",
   },
   {
-    icon: "dumbbell",
-    lead: "Beginner? Struggling to stay consistent?",
-    body: "The app is built to slowly build up your consistency, no matter where you are. We'll build your new lifestyle together, brick by brick.",
-  },
-  {
     icon: "bones",
     lead: "Growth Plates Closed?",
     body: "This method is built to work at any age.",
+  },
+  {
+    icon: "dumbbell",
+    lead: "Beginner? Struggling to stay consistent?",
+    body: "The app is built to slowly build up your consistency, no matter where you are. We'll build your new lifestyle together, brick by brick.",
   },
   { icon: "progress", lead: "Best Progress Tracking", body: "" },
   { icon: "guided", lead: "Guided Workouts", body: "" },
@@ -148,41 +162,45 @@ type ValueIconName = (typeof VALUE_ITEMS)[number]["icon"];
 function ValueSection({ active }: { active: boolean }) {
   return (
     <section
-      className="landing-value-section h-full min-h-0 overflow-hidden bg-[#080808] px-4"
+      data-section-scroll
+      className="landing-value-section h-full min-h-0 overflow-y-auto overscroll-contain bg-[#080808] px-4"
       aria-hidden={!active}
     >
-      <div className="mx-auto flex h-full w-full max-w-xl flex-col pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-[clamp(0.9rem,2.6dvh,1.8rem)]">
+      <div className="mx-auto flex min-h-full w-full max-w-xl flex-col pb-[calc(1.4rem+env(safe-area-inset-bottom))] pt-[clamp(0.9rem,2.6dvh,1.8rem)]">
         <h2 className="text-[clamp(2rem,9vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-white">
           All this for just <span className="text-red-500">$29/month</span>
         </h2>
 
-        <ul className="mt-[clamp(0.75rem,2dvh,1.3rem)] grid gap-[clamp(0.3rem,0.9dvh,0.55rem)]">
-          {VALUE_ITEMS.map((item) => (
-            <li
-              key={item.lead}
-              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-[clamp(0.45rem,1.1dvh,0.7rem)]"
-            >
-              <span
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-500/25 bg-red-500/10 text-red-500"
-                aria-hidden="true"
-              >
-                <ValueIcon name={item.icon} />
-              </span>
-              <p className="min-w-0 leading-[1.25]">
-                <span className="block font-semibold text-red-500">{item.lead}</span>
-                {item.body && <span className="mt-0.5 block text-white/62">{item.body}</span>}
-              </p>
-            </li>
+        <ul className="mt-[clamp(0.75rem,2dvh,1.3rem)] grid gap-[clamp(0.45rem,1.1dvh,0.7rem)]">
+          {VALUE_ITEMS.map((item, index) => (
+            <Fragment key={item.lead}>
+              <li className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-[clamp(0.55rem,1.25dvh,0.8rem)]">
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-500/25 bg-red-500/10 text-red-500"
+                  aria-hidden="true"
+                >
+                  <ValueIcon name={item.icon} />
+                </span>
+                <p className="min-w-0 leading-[1.25]">
+                  <span className="block font-semibold text-red-500">{item.lead}</span>
+                  {item.body && <span className="mt-0.5 block text-white/62">{item.body}</span>}
+                </p>
+              </li>
+
+              {index === 1 && (
+                <li>
+                  <Link
+                    to="/access"
+                    tabIndex={active ? 0 : -1}
+                    className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-black/10 bg-white px-6 font-semibold text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f8f8f8] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  >
+                    Continue
+                  </Link>
+                </li>
+              )}
+            </Fragment>
           ))}
         </ul>
-
-        <Link
-          to="/access"
-          tabIndex={active ? 0 : -1}
-          className="mt-[clamp(0.7rem,1.8dvh,1.2rem)] inline-flex min-h-12 w-full items-center justify-center rounded-full border border-black/10 bg-white px-6 font-semibold text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f8f8f8] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-        >
-          Continue
-        </Link>
       </div>
     </section>
   );

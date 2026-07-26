@@ -3,6 +3,9 @@ import { ChevronDown } from "lucide-react";
 
 type Phase = "before" | "transforming" | "after";
 
+const BEFORE_STATS = ["5′5″ manlet", "Depressed", "Lonely"] as const;
+const AFTER_STATS = ["5′10″", "Happiness begins"] as const;
+
 export function TransformationSection({
   active,
   onTransformed,
@@ -62,23 +65,27 @@ export function TransformationSection({
         )}
       </div>
 
-      <div className="landing-image-fade pointer-events-none absolute inset-x-0 top-[30%] h-[50%]" />
+      <div className="landing-image-fade pointer-events-none absolute inset-x-0 top-[32%] h-[34%]" />
 
-      <div className="absolute inset-x-0 bottom-[calc(1.2rem+env(safe-area-inset-bottom))] z-[2] px-5">
-        <div className="mx-auto max-w-md" aria-live="polite">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-500">
-            {phase === "after" ? "Three months later (all natural)" : "Before"}
-          </p>
+      <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[61%] z-[2] grid grid-rows-[24fr_44fr_32fr] px-5">
+        <div className="flex min-h-0 items-center justify-center text-center" aria-live="polite">
+          {phase === "after" ? (
+            <p className="font-medium leading-tight text-red-500">
+              <span className="block">3 months later</span>
+              <span className="block">(All natural)</span>
+            </p>
+          ) : (
+            <p className="font-medium text-red-500">Before</p>
+          )}
+        </div>
 
+        <div className="flex min-h-0 items-center justify-center">
           <ul
-            className={`mt-3 space-y-1.5 transition-[opacity,transform] duration-500 ease-out ${
+            className={`w-full max-w-md space-y-1.5 transition-[opacity,transform] duration-500 ease-out ${
               phase === "transforming" ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
             }`}
           >
-            {(phase === "after"
-              ? ["5 foot 10", "Happiness begins"]
-              : ["5 foot 5", "Depressed", "Lonely", "Manlet"]
-            ).map((stat) => (
+            {(phase === "after" ? AFTER_STATS : BEFORE_STATS).map((stat) => (
               <li
                 key={stat}
                 className="flex items-center gap-3 text-[clamp(1.1rem,5vw,1.45rem)] font-medium tracking-[-0.025em] text-white"
@@ -88,14 +95,16 @@ export function TransformationSection({
               </li>
             ))}
           </ul>
+        </div>
 
+        <div className="flex min-h-0 items-center justify-center">
           {phase !== "after" ? (
             <button
               type="button"
               onClick={transform}
               disabled={phase === "transforming"}
               tabIndex={active ? 0 : -1}
-              className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-red-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-red-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-70"
+              className="inline-flex min-h-12 w-full max-w-md items-center justify-center rounded-full bg-red-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-red-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-70"
             >
               {phase === "transforming" ? "Transforming…" : "Transform"}
             </button>
@@ -104,7 +113,7 @@ export function TransformationSection({
               type="button"
               onClick={onContinue}
               tabIndex={active ? 0 : -1}
-              className="landing-after-swipe mt-4 flex w-full flex-col items-center gap-0.5 rounded-full py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.98]"
+              className="landing-after-swipe flex w-full max-w-md flex-col items-center gap-0.5 rounded-full py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.98]"
               aria-label="Continue to the next section"
             >
               <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
