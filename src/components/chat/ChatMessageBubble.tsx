@@ -15,7 +15,7 @@ export function ChatMessageBubble({ message, own }: { message: ChatMessage; own:
     <div className={cn("flex", own ? "justify-end" : "justify-start")}>
       <div
         className={cn(
-          "max-w-[82%] rounded-2xl px-3 py-2",
+          "max-w-[78%] rounded-xl px-3.5 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
           own
             ? "rounded-br-sm bg-primary text-primary-foreground"
             : "rounded-bl-sm bg-muted text-foreground",
@@ -25,9 +25,9 @@ export function ChatMessageBubble({ message, own }: { message: ChatMessage; own:
         {message.attachments && message.attachments.length > 0 && (
           <div
             className={cn(
-              "grid gap-1.5",
+              "grid gap-2",
               message.attachments.length === 1 ? "grid-cols-1" : "grid-cols-2",
-              message.body && "mt-2",
+              message.body && "mt-2.5",
             )}
           >
             {message.attachments.map((attachment) => (
@@ -44,13 +44,13 @@ export function ChatMessageBubble({ message, own }: { message: ChatMessage; own:
                         className="aspect-square h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="flex aspect-square items-center justify-center px-2 text-xs text-muted-foreground">
+                      <span className="flex aspect-square items-center justify-center px-2 text-[1rem] leading-5 text-muted-foreground">
                         Image unavailable
                       </span>
                     )}
                   </button>
                 </DialogTrigger>
-                <DialogContent className="h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-3xl rounded-2xl bg-black p-2">
+                <DialogContent className="h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-3xl rounded-xl bg-black p-2">
                   <DialogTitle className="sr-only">Chat image</DialogTitle>
                   <DialogDescription className="sr-only">
                     Full-size local chat image.
@@ -69,8 +69,8 @@ export function ChatMessageBubble({ message, own }: { message: ChatMessage; own:
         )}
         <p
           className={cn(
-            "mt-1 text-[10px] tabular-nums",
-            own ? "text-primary-foreground/70" : "text-muted-foreground",
+            "mt-1.5 text-[0.8125rem] leading-4 tabular-nums",
+            own ? "text-primary-foreground/75" : "text-muted-foreground",
           )}
         >
           {formatMessageTime(message.createdAt)}
@@ -84,7 +84,7 @@ function ChatMessageBody({ body, interactive }: { body: string; interactive: boo
   const structured = decodeFinalSequenceMessage(body);
   if (structured) {
     return (
-      <div className="space-y-1 break-words text-sm">
+      <div className="space-y-1.5 break-words text-[1rem] leading-6">
         {structured.lines.map((line) => (
           <StructuredLine key={line.id} line={line} />
         ))}
@@ -94,14 +94,14 @@ function ChatMessageBody({ body, interactive }: { body: string; interactive: boo
 
   if (interactive && body === ONBOARDING_FINAL_MESSAGE) {
     return (
-      <div className="break-words text-sm">
+      <div className="break-words text-[1rem] leading-6">
         <p>placeholder</p>
         <PopupLink text="placeholder" />
       </div>
     );
   }
 
-  return <p className="whitespace-pre-wrap break-words text-sm">{body}</p>;
+  return <p className="whitespace-pre-wrap break-words text-[1rem] leading-6">{body}</p>;
 }
 
 function StructuredLine({ line }: { line: FinalSequenceLine }) {
@@ -111,14 +111,14 @@ function StructuredLine({ line }: { line: FinalSequenceLine }) {
         href={line.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block font-medium text-blue-500 underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="block break-words font-medium text-blue-500 underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         {line.text}
       </a>
     );
   }
   if (line.type === "popup_link") return <PopupLink text={line.text} />;
-  return <p className="whitespace-pre-wrap">{line.text}</p>;
+  return <p className="whitespace-pre-wrap break-words">{line.text}</p>;
 }
 
 function PopupLink({ text }: { text: string }) {
@@ -127,12 +127,12 @@ function PopupLink({ text }: { text: string }) {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="block font-medium text-blue-500 underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="block break-words text-left font-medium text-blue-500 underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >
           {text}
         </button>
       </DialogTrigger>
-      <DialogContent className="h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-2xl rounded-2xl p-0">
+      <DialogContent className="h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-2xl rounded-xl p-0">
         <DialogTitle className="sr-only">{text}</DialogTitle>
         <DialogDescription className="sr-only">Empty placeholder popup.</DialogDescription>
         <div className="h-full w-full" aria-hidden="true" />

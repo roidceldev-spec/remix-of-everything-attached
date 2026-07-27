@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1 and Stage 2 implemented in development; deployment and browser verification required.
+Status: Stage 1, Stage 2 and Stage 3 implemented in development; deployment and browser verification required.
 
 Last updated: 2026-07-27
 
@@ -43,8 +43,8 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
 1. **Landing page overhaul** — implemented in development.
    - No skeleton loading is required before the user leaves the public/access experience for onboarding.
 2. **Client Mode dashboard UI and UX** — implemented in development.
-3. **Chat system UI and UX** — next.
-4. **Onboarding UI and UX**.
+3. **Chat system UI and UX** — implemented in development.
+4. **Onboarding UI and UX** — next.
 5. **Classic workout mode UI and UX**.
 6. **Guided workout mode UI and UX**.
 7. **Workout History** — list and calendar views.
@@ -98,6 +98,18 @@ Status: implemented in development.
 - Large touch targets: all primary actions min-h-12, navigation 56px.
 - Safe-area, keyboard, screen-reader, reduced-motion preserved.
 - Visual hierarchy: greeting → unread → today's workout → progress pictures.
+
+## Stage 3 — Chat system
+
+Status: implemented in development.
+
+- **Message bubbles:** Reduced blob-like `rounded-2xl` to `rounded-xl` with small tail (`rounded-br-sm`/`rounded-bl-sm`), padding `px-3.5 py-2.5`, body text `1rem` `leading-6`, shadow subtle, attachments grid gap 2, image buttons `rounded-lg`, full-screen dialog `rounded-xl`, timestamp `0.8125rem` (floored to 1rem via universal floor) tabular-nums.
+- **Chat Conversation:** Back button `min-h-11 min-w-11` `rounded-xl` for 44px touch target, header title `1.125rem` semibold, username `1rem`, pending join request banner `rounded-xl` with title/description `1rem`, message list `space-y-3.5 py-5`, loading/empty states `rounded-xl` `1rem`+ hierarchy, error inline now tells what happened why what to do next (local storage unavailable/full), composer sticky `bottom-[calc(4rem+env(safe-area-inset-bottom))]` `rounded-xl` `p-2.5`, textarea `min-h-12` `rounded-xl` `py-3` `text-[1rem]`, send button `min-h-12 min-w-12` `rounded-xl`, char count `0.875rem` (floored).
+- **Coach Chat Inbox:** Header `1rem` description, loading/error/empty all `rounded-xl` `1rem`, list `rounded-xl`, each conversation `px-4 py-3.5`, name/username/lastMessage all `1rem`, unread badge `rounded-md` (was `rounded-full`) `min-h-5 min-w-5` `text-[0.75rem]`, timestamp `0.8125rem`, chevron 5w5, safe hover.
+- **Chat Button:** Increased to `min-h-11 min-w-11` `rounded-xl`, badge `rounded-md` `min-h-5 min-w-5` `text-[0.75rem]` (was `rounded-full` `text-[9px]`), preserves unread count logic.
+- **Coach Messaging Page:** Title/description `1rem`, TabsList `rounded-xl` `p-1`, TabsTrigger `min-h-11` `rounded-lg` `px-3 py-2.5` `text-[1rem]` medium, icons 5w5, large touch targets.
+- **Universal for this surface:** No colored gradients, no emojis, system font already global, 1rem floor enforced via existing CSS, large touch targets 44px+, safe-area handling, keyboard focus rings, screen-reader labels preserved, reduced-motion respected.
+- **Error UX improvement:** Conversation load and send errors now explain local storage unavailability/full as reason and suggest checking device storage and retrying, instead of bare "could not be sent".
 
 ## Form UX principles for applicable later stages
 
