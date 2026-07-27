@@ -985,7 +985,7 @@ function GuidedMode({
         subtitle={`Set ${index + 1} of ${flat.length}`}
         elapsed={elapsed}
         right={
-          <Button size="sm" variant="outline" onClick={onSwitchClassic}>
+          <Button variant="outline" onClick={onSwitchClassic} className="min-h-10 rounded-lg text-[1rem]">
             Classic
           </Button>
         }
@@ -1123,15 +1123,15 @@ function PerformPanel({
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 p-4">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
           Exercise {exerciseIndex + 1} · Set {setIndex + 1} of {totalSetsInExercise}
         </p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight">
+        <h2 className="mt-1 text-[clamp(1.5rem,6vw,2rem)] font-semibold leading-tight tracking-tight">
           {def ? def.name : "Unknown exercise"}
         </h2>
         {exercise.notes && (
-          <div className="mt-3 rounded-md bg-muted/50 px-3 py-2">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="mt-3 rounded-lg bg-muted/40 px-3.5 py-2.5">
+            <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
               Notes from coach
             </p>
             <p className="mt-1 whitespace-pre-line text-sm text-foreground">{exercise.notes}</p>
@@ -1141,15 +1141,15 @@ function PerformPanel({
           {chips.map((chip) => (
             <li
               key={chip}
-              className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+              className="rounded-md border border-border bg-muted px-2.5 py-1 text-[0.75rem] font-medium uppercase tracking-wide text-muted-foreground"
             >
               {chip}
             </li>
           ))}
         </ul>
         {suggestedWeight && (
-          <div className="mt-3 rounded-md border border-border bg-muted/30 px-3 py-2">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="mt-3 rounded-lg border border-border bg-muted/30 px-3.5 py-2.5">
+            <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
               Suggested weight range
             </p>
             <p className="mt-0.5 text-base font-semibold tabular-nums text-foreground">
@@ -1158,8 +1158,8 @@ function PerformPanel({
           </div>
         )}
         {set.coachNotes && (
-          <div className="mt-3 rounded-md bg-muted/50 px-3 py-2">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="mt-3 rounded-lg bg-muted/40 px-3.5 py-2.5">
+            <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
               Notes from coach
             </p>
             <p className="mt-1 whitespace-pre-line text-sm text-foreground">{set.coachNotes}</p>
@@ -1169,7 +1169,7 @@ function PerformPanel({
 
       <div className="space-y-3 rounded-lg border border-border bg-card p-4">
         <div className="space-y-1.5">
-          <Label htmlFor={`guided-weight-${set.id}`} className="text-xs text-muted-foreground">
+          <Label htmlFor={`guided-weight-${set.id}`} className="text-[1rem] font-medium leading-5 text-muted-foreground">
             Weight done
           </Label>
           <WeightDoneInput
@@ -1190,7 +1190,7 @@ function PerformPanel({
           onChange={onReps}
         />
         <div className="space-y-1.5">
-          <Label htmlFor={`guided-notes-${set.id}`} className="text-xs text-muted-foreground">
+          <Label htmlFor={`guided-notes-${set.id}`} className="text-[1rem] font-medium leading-5 text-muted-foreground">
             Notes to your coach
           </Label>
           <Textarea
@@ -1202,17 +1202,17 @@ function PerformPanel({
             placeholder="Add a note for your coach"
             rows={1}
             maxLength={SET_NOTES_MAX_LENGTH}
-            className="h-9 min-h-9 resize-y py-2"
+            className="min-h-12 resize-y rounded-xl py-3 text-[1rem] leading-6"
           />
         </div>
-        <Button className="w-full" onClick={onComplete}>
-          <Check className="h-4 w-4" aria-hidden="true" />
+        <Button className="min-h-12 w-full rounded-xl text-[1rem] font-semibold" onClick={onComplete}>
+          <Check className="h-5 w-5" aria-hidden="true" />
           Complete set
         </Button>
       </div>
 
-      <Button variant="ghost" onClick={onSkip} className="self-center">
-        <SkipForward className="h-4 w-4" aria-hidden="true" />
+      <Button variant="ghost" onClick={onSkip} className="min-h-11 self-center rounded-xl text-[1rem]">
+        <SkipForward className="h-5 w-5" aria-hidden="true" />
         Skip set
       </Button>
     </div>
@@ -1232,7 +1232,7 @@ function RepsStepper({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-xs text-muted-foreground">
+      <Label htmlFor={id} className="text-[1rem] font-medium leading-5 text-muted-foreground">
         {label}
       </Label>
       <div className="flex items-center gap-2">
@@ -1468,7 +1468,7 @@ function RestPanel({
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Rest</p>
+      <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">Rest</p>
       <div
         className="text-6xl font-semibold tabular-nums"
         role="timer"
@@ -1478,7 +1478,7 @@ function RestPanel({
         {formatElapsed(remaining)}
       </div>
       <div
-        className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-muted"
+        className="h-2.5 w-full max-w-xs overflow-hidden rounded-full bg-muted"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -1563,7 +1563,7 @@ function SummaryScreen({
       <dl className="grid grid-cols-2 gap-3">
         {stats.map((s) => (
           <div key={s.label} className="rounded-lg border border-border bg-card p-4">
-            <dt className="text-xs text-muted-foreground">{s.label}</dt>
+            <dt className="text-[0.875rem] leading-5 text-muted-foreground">{s.label}</dt>
             <dd
               className={`mt-1 font-semibold tabular-nums ${
                 s.label === "Total volume" ? "break-words text-lg" : "text-2xl"
