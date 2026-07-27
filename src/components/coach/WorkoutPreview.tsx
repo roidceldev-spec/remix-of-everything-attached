@@ -491,11 +491,11 @@ function ModeChooser({
   return (
     <div className="mx-auto flex min-h-full w-full max-w-md flex-col justify-between gap-8 p-6">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
           {audience === "client" ? "Today’s workout" : "Previewing"}
         </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{workoutName}</h1>
-        <p className="mt-6 text-sm text-foreground">
+        <h1 className="mt-1 text-[clamp(1.5rem,6vw,2rem)] font-semibold leading-tight tracking-tight text-foreground">{workoutName}</h1>
+        <p className="mt-6 text-[1rem] leading-6 text-foreground">
           {audience === "client"
             ? "How do you want to train?"
             : "How do you want to preview this workout?"}
@@ -506,38 +506,38 @@ function ModeChooser({
         <button
           type="button"
           onClick={onPickGuided}
-          className="group rounded-lg border border-border bg-card p-4 text-left transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="group min-h-16 rounded-xl border border-border bg-card p-5 text-left shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <div className="flex items-center justify-between gap-2">
-            <span className="text-base font-semibold">Guided Mode</span>
+            <span className="text-[1.125rem] font-semibold leading-tight tracking-tight">Guided Mode</span>
             <ChevronRight
-              className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+              className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-0.5"
               aria-hidden="true"
             />
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-[1rem] leading-5 text-muted-foreground">
             Move through one set at a time with rest timers.
           </p>
         </button>
         <button
           type="button"
           onClick={onPickClassic}
-          className="group rounded-lg border border-border bg-card p-4 text-left transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="group min-h-16 rounded-xl border border-border bg-card p-5 text-left shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors hover:border-primary/60 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <div className="flex items-center justify-between gap-2">
-            <span className="text-base font-semibold">Classic Mode</span>
+            <span className="text-[1.125rem] font-semibold leading-tight tracking-tight">Classic Mode</span>
             <ChevronRight
-              className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+              className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-0.5"
               aria-hidden="true"
             />
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-[1rem] leading-5 text-muted-foreground">
             See every exercise and log sets freely.
           </p>
         </button>
 
-        <Button variant="ghost" onClick={onBack} className="mt-2 self-start">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        <Button variant="ghost" onClick={onBack} className="mt-2 min-h-11 self-start rounded-xl text-[1rem]">
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           {audience === "client" ? "Back to dashboard" : "Back to builder"}
         </Button>
       </div>
@@ -559,23 +559,26 @@ function PreviewHeader({
   onExit: () => void;
 }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h1 className="truncate text-base font-semibold">{title}</h1>
-          {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
+    <header
+      className="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-3.5 backdrop-blur"
+      style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top))" }}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-[1.125rem] font-semibold leading-tight tracking-tight text-foreground">{title}</h1>
+          {subtitle && <p className="truncate text-[1rem] leading-5 text-muted-foreground">{subtitle}</p>}
         </div>
         <div className="flex items-center gap-2">
           <span
-            className="rounded-md border border-border bg-muted px-2 py-1 text-xs font-medium tabular-nums text-foreground"
+            className="rounded-md border border-border bg-muted px-2.5 py-1 text-[0.875rem] font-medium tabular-nums leading-5 text-foreground"
             aria-label={`Elapsed ${formatElapsed(elapsed)}`}
           >
             {formatElapsed(elapsed)}
           </span>
           {right}
           <SettingsMenu />
-          <Button variant="ghost" size="icon" onClick={onExit} aria-label="Exit preview">
-            <X className="h-4 w-4" aria-hidden="true" />
+          <Button variant="ghost" size="icon" onClick={onExit} aria-label="Exit preview" className="min-h-11 min-w-11 rounded-xl">
+            <X className="h-5 w-5" aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -628,19 +631,19 @@ function ClassicMode({
         elapsed={elapsed}
         right={
           <Button
-            size="sm"
             variant="outline"
             onClick={onSwitchGuided}
             disabled={selectingGuidedSet}
+            className="min-h-10 rounded-lg text-[1rem]"
           >
             Guided
           </Button>
         }
         onExit={onExit}
       />
-      <div className="mx-auto w-full max-w-md space-y-5 p-4">
+      <div className="mx-auto w-full max-w-md space-y-6 p-4">
         {selectingGuidedSet && (
-          <p className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm text-foreground">
+          <p className="rounded-xl border border-primary/40 bg-primary/5 px-4 py-3 text-[1rem] leading-5 text-foreground">
             Select the set where Guided Mode should begin.
           </p>
         )}
@@ -650,23 +653,23 @@ function ClassicMode({
             <section
               key={ex.id}
               aria-labelledby={`ex-${ex.id}-h`}
-              className="rounded-lg border border-border bg-card p-4"
+              className="rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             >
               <div className="flex items-baseline justify-between gap-2">
-                <h2 id={`ex-${ex.id}-h`} className="text-base font-semibold">
+                <h2 id={`ex-${ex.id}-h`} className="text-[1.125rem] font-semibold leading-tight tracking-tight text-foreground">
                   <span className="text-muted-foreground">{exIdx + 1}.</span>{" "}
                   {def ? def.name : "Unknown exercise"}
                 </h2>
               </div>
               {ex.notes && (
-                <div className="mt-2 rounded-md bg-muted/50 px-3 py-2">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                <div className="mt-3 rounded-lg bg-muted/40 px-3.5 py-2.5">
+                  <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
                     Notes from coach
                   </p>
-                  <p className="mt-1 whitespace-pre-line text-xs text-foreground">{ex.notes}</p>
+                  <p className="mt-1.5 whitespace-pre-line text-[1rem] leading-5 text-foreground">{ex.notes}</p>
                 </div>
               )}
-              <ul role="list" className="mt-3 space-y-2">
+              <ul role="list" className="mt-4 space-y-3">
                 {ex.sets.map((set, setIdx) => {
                   const key = resultKey(ex.id, set.id);
                   const result = results[key];
@@ -725,17 +728,17 @@ function ClassicMode({
         })}
 
         {selectingGuidedSet ? (
-          <div className="grid grid-cols-2 gap-2">
-            <Button onClick={onConfirmGuidedSet} disabled={!selectedGuidedSetKey}>
+          <div className="grid grid-cols-2 gap-2.5">
+            <Button onClick={onConfirmGuidedSet} disabled={!selectedGuidedSetKey} className="min-h-12 rounded-xl text-[1rem] font-semibold">
               Select set
             </Button>
-            <Button variant="outline" onClick={onCancelGuidedSet}>
+            <Button variant="outline" onClick={onCancelGuidedSet} className="min-h-12 rounded-xl text-[1rem] font-semibold">
               Cancel
             </Button>
           </div>
         ) : (
-          <Button className="w-full" onClick={onFinish}>
-            <Flag className="h-4 w-4" aria-hidden="true" />
+          <Button className="min-h-12 w-full rounded-xl text-[1rem] font-semibold" onClick={onFinish}>
+            <Flag className="h-5 w-5" aria-hidden="true" />
             {audience === "client" ? "Finish workout" : "Finish preview"}
           </Button>
         )}
@@ -799,14 +802,14 @@ function ClassicSetRow({
           : undefined
       }
       className={cn(
-        "rounded-md border p-3 transition-[border-color,box-shadow,background-color]",
-        result.completed ? "border-primary/60 bg-primary/5" : "border-border bg-background",
+        "rounded-xl border p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-[border-color,box-shadow,background-color]",
+        result.completed ? "border-primary/60 bg-primary/5" : "border-border bg-card",
         selecting && "cursor-pointer",
         selecting && selected && "border-primary bg-primary/10 ring-2 ring-primary/30",
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Set {setIndex + 1}</span>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[1rem] font-medium leading-5 text-muted-foreground">Set {setIndex + 1}</span>
         <Button
           type="button"
           size="sm"
@@ -823,45 +826,45 @@ function ClassicSetRow({
               ? `Mark set ${setIndex + 1} incomplete`
               : `Complete set ${setIndex + 1}`
           }
-          className="h-8"
+          className="min-h-10 rounded-lg px-3 py-1.5 text-[1rem]"
         >
-          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+          <Check className="h-4 w-4" aria-hidden="true" />
           {result.completed ? "Completed" : "Complete"}
         </Button>
       </div>
-      <ul className="mt-2 flex flex-wrap gap-1" aria-label="Prescription">
+      <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Prescription">
         {chips.map((chip) => (
           <li
             key={chip}
-            className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+            className="rounded-md border border-border bg-muted px-2.5 py-1 text-[0.75rem] font-medium uppercase tracking-wide text-muted-foreground"
           >
             {chip}
           </li>
         ))}
       </ul>
       {suggestedWeight && (
-        <div className="mt-3 rounded-md border border-border bg-muted/30 px-3 py-2">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="mt-3 rounded-lg border border-border bg-muted/30 px-3.5 py-2.5">
+          <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
             Suggested weight range
           </p>
-          <p className="mt-0.5 text-sm font-semibold tabular-nums text-foreground">
+          <p className="mt-1 text-[1rem] font-semibold leading-5 tabular-nums text-foreground">
             {suggestedWeight}
           </p>
         </div>
       )}
       {set.coachNotes && (
-        <div className="mt-3 rounded-md bg-muted/50 px-3 py-2">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="mt-3 rounded-lg bg-muted/40 px-3.5 py-2.5">
+          <p className="text-[0.8125rem] font-medium uppercase tracking-wide text-muted-foreground">
             Notes from coach
           </p>
-          <p className="mt-1 whitespace-pre-line text-xs text-foreground">{set.coachNotes}</p>
+          <p className="mt-1.5 whitespace-pre-line text-[1rem] leading-5 text-foreground">{set.coachNotes}</p>
         </div>
       )}
-      <div className="mt-3 space-y-3">
-        <div className="space-y-1">
+      <div className="mt-4 space-y-4">
+        <div className="space-y-1.5">
           <Label
             htmlFor={`w-${result.setId}`}
-            className="text-xs font-medium text-muted-foreground"
+            className="text-[1rem] font-medium leading-5 text-muted-foreground"
           >
             Weight done
           </Label>
@@ -871,15 +874,16 @@ function ClassicSetRow({
             unitId={result.actualWeightUnitId}
             units={weightUnits}
             disabled={selecting}
+            large
             onValueChange={onWeight}
             onUnitChange={onWeightUnit}
             onCreateUnit={onCreateWeightUnit}
           />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Label
             htmlFor={`r-${result.setId}`}
-            className="text-xs font-medium text-muted-foreground"
+            className="text-[1rem] font-medium leading-5 text-muted-foreground"
           >
             Reps done
           </Label>
@@ -889,13 +893,13 @@ function ClassicSetRow({
             onChange={onReps}
             integer
             disabled={selecting}
-            className="h-9"
+            className="min-h-12 rounded-xl text-[1rem]"
           />
         </div>
         <div className="space-y-1.5">
           <Label
             htmlFor={`client-notes-${result.setId}`}
-            className="text-xs font-medium text-muted-foreground"
+            className="text-[1rem] font-medium leading-5 text-muted-foreground"
           >
             Notes to your coach
           </Label>
@@ -909,7 +913,7 @@ function ClassicSetRow({
             rows={1}
             maxLength={SET_NOTES_MAX_LENGTH}
             disabled={selecting}
-            className="h-9 min-h-9 resize-y py-2"
+            className="min-h-12 resize-y rounded-xl py-3 text-[1rem] leading-6"
           />
         </div>
       </div>
@@ -1350,7 +1354,11 @@ function WeightDoneInput({
           const number = Number(draft);
           commit(draft.trim() !== "" && Number.isFinite(number) && number >= 0 ? number : 0);
         }}
-        className={cn(large ? "h-11 pl-[4.75rem] pr-20 text-base" : "h-9 pl-[4.75rem] pr-20")}
+        className={cn(
+          large
+            ? "min-h-12 rounded-xl pl-[4.75rem] pr-20 text-[1rem]"
+            : "min-h-12 rounded-xl pl-[4.75rem] pr-20 text-[1rem]",
+        )}
       />
       <WeightUnitSelector
         value={unit.id}
