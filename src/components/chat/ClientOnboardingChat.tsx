@@ -56,7 +56,9 @@ export function ClientOnboardingChat({
       if (nextFlow.completedAt) await onCompleted();
     } catch (nextError) {
       console.error("Client onboarding could not be loaded", nextError);
-      setError("Local onboarding could not be loaded. Please try again.");
+      setError(
+        "Local onboarding could not be loaded because local chat storage is unavailable. Try refreshing and checking device storage.",
+      );
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,9 @@ export function ClientOnboardingChat({
       await refreshUnread();
     } catch (nextError) {
       console.error("Client onboarding answer failed", nextError);
-      setError("That answer could not be saved. Please try again.");
+      setError(
+        "Your answer could not be saved because local storage is unavailable or full. Check device storage and try again.",
+      );
       await loadOnboarding();
     } finally {
       setSubmitting(false);
@@ -129,11 +133,16 @@ export function ClientOnboardingChat({
 
   return (
     <main className="flex h-[100dvh] flex-col overflow-hidden bg-background text-foreground">
-      <header className="shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-        <div className="mx-auto flex h-16 w-full max-w-3xl items-center px-4">
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold">{coach?.name ?? "Coach"}</h1>
-            <p className="truncate text-xs text-muted-foreground">
+      <header
+        className="shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <div className="mx-auto flex min-h-16 w-full max-w-3xl items-center px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-[1.125rem] font-semibold leading-tight tracking-[-0.01em] text-foreground">
+              {coach?.name ?? "Coach"}
+            </h1>
+            <p className="truncate text-[1rem] leading-5 text-muted-foreground">
               {coach ? `@${coach.username}` : "No More Copium onboarding"}
             </p>
           </div>
@@ -141,10 +150,10 @@ export function ClientOnboardingChat({
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="mx-auto w-full max-w-3xl space-y-3 px-4 py-5" aria-live="polite">
+        <div className="mx-auto w-full max-w-3xl space-y-3.5 px-4 py-5" aria-live="polite">
           {loading && messages.length === 0 ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <div className="flex items-center gap-2.5 text-[1rem] leading-6 text-muted-foreground">
+              <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
               Loading conversation…
             </div>
           ) : (
@@ -162,18 +171,18 @@ export function ClientOnboardingChat({
 
       <footer
         className="shrink-0 border-t border-border bg-background px-4 pt-3"
-        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+        style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
       >
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           {error && (
-            <div className="mb-3 flex items-start gap-2 rounded-xl border border-destructive/40 px-3 py-2 text-sm text-destructive">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-              <div className="flex-1">
-                <p>{error}</p>
+            <div className="flex items-start gap-2.5 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-[1rem] leading-5 text-destructive">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+              <div className="min-w-0 flex-1">
+                <p className="break-words">{error}</p>
                 {!flow && (
                   <button
                     type="button"
-                    className="mt-1 font-medium underline underline-offset-4"
+                    className="mt-2 min-h-9 rounded-lg border border-destructive/30 px-3 py-1.5 text-[1rem] font-medium underline-offset-4 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
                     onClick={() => void loadOnboarding()}
                   >
                     Try again
@@ -184,17 +193,17 @@ export function ClientOnboardingChat({
           )}
 
           {question && (
-            <div className="grid gap-2" aria-label={question.prompt}>
+            <div className="grid gap-2.5" aria-label={question.prompt}>
               {question.options.map((option) => (
                 <Button
                   key={option}
                   type="button"
                   variant="outline"
                   disabled={loading || submitting}
-                  className="min-h-12 h-auto justify-start rounded-2xl px-4 py-3 text-left whitespace-normal"
+                  className="min-h-12 h-auto justify-start rounded-xl border-border bg-card px-4 py-3.5 text-left text-[1rem] font-medium leading-6 tracking-[-0.01em] whitespace-normal shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
                   onClick={() => void chooseAnswer(option)}
                 >
-                  {option}
+                  <span className="min-w-0 flex-1 break-words">{option}</span>
                 </Button>
               ))}
             </div>
@@ -202,14 +211,16 @@ export function ClientOnboardingChat({
 
           {flow?.step === 6 && !flow.completedAt && (
             <div className="space-y-3">
-              <div className="rounded-xl border border-border bg-muted/40 px-3 py-2.5">
-                <p className="text-sm font-medium text-foreground">
+              <div className="rounded-xl border border-border bg-muted/30 px-4 py-3.5">
+                <p className="text-[1rem] font-semibold leading-5 text-foreground">
                   {joinRequestPending
                     ? "Awaiting Coach approval"
                     : "Send at least one image to request access"}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Free-text replies stay disabled. You can continue sending images while waiting.
+                <p className="mt-1.5 text-[1rem] leading-5 text-muted-foreground">
+                  {joinRequestPending
+                    ? "Your images were sent. Free-text replies stay disabled until your coach approves access. You can continue sending images while waiting."
+                    : "Free-text replies stay disabled. You need to share at least one progress image to create a join request."}
                 </p>
               </div>
               <ChatImageUploadDialog

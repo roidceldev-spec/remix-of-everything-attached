@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1, Stage 2 and Stage 3 implemented in development; deployment and browser verification required.
+Status: Stage 1, Stage 2, Stage 3 and Stage 4 implemented in development; deployment and browser verification required.
 
 Last updated: 2026-07-27
 
@@ -44,8 +44,8 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
    - No skeleton loading is required before the user leaves the public/access experience for onboarding.
 2. **Client Mode dashboard UI and UX** — implemented in development.
 3. **Chat system UI and UX** — implemented in development.
-4. **Onboarding UI and UX** — next.
-5. **Classic workout mode UI and UX**.
+4. **Onboarding UI and UX** — implemented in development.
+5. **Classic workout mode UI and UX** — next.
 6. **Guided workout mode UI and UX**.
 7. **Workout History** — list and calendar views.
 8. **Loading state**.
@@ -110,6 +110,20 @@ Status: implemented in development.
 - **Coach Messaging Page:** Title/description `1rem`, TabsList `rounded-xl` `p-1`, TabsTrigger `min-h-11` `rounded-lg` `px-3 py-2.5` `text-[1rem]` medium, icons 5w5, large touch targets.
 - **Universal for this surface:** No colored gradients, no emojis, system font already global, 1rem floor enforced via existing CSS, large touch targets 44px+, safe-area handling, keyboard focus rings, screen-reader labels preserved, reduced-motion respected.
 - **Error UX improvement:** Conversation load and send errors now explain local storage unavailability/full as reason and suggest checking device storage and retrying, instead of bare "could not be sent".
+
+## Stage 4 — Onboarding
+
+Status: implemented in development.
+
+- **Header:** `min-h-16` with `env(safe-area-inset-top)` padding, title `1.125rem` semibold tracking `-0.01em`, username `1rem` leading-5, left-aligned, border-b with backdrop-blur preserved.
+- **Message list:** `min-h-0 flex-1 overflow-y-auto overscroll-contain`, container `max-w-3xl space-y-3.5 px-4 py-5` `aria-live=polite`, reuses Stage 3 bubble overhaul (rounded-xl, 1rem, shadow).
+- **Loading:** `gap-2.5 text-[1rem] leading-6` with `h-5 w-5 animate-spin` for better visibility.
+- **Error states:** `rounded-xl border-destructive/40 bg-destructive/5 px-4 py-3 text-[1rem] leading-5`, explains what happened why what to do next (local storage unavailable, check storage, try refreshing), Try again button `min-h-9 rounded-lg border-destructive/30 px-3 py-1.5 text-[1rem]` with focus ring.
+- **Question options:** Grid `gap-2.5` `aria-label=prompt`, each option Button `min-h-12 h-auto justify-start rounded-xl border-border bg-card px-4 py-3.5 text-left text-[1rem] font-medium leading-6 tracking-[-0.01em] whitespace-normal shadow` hover accent, focus ring 2. Preserves exact option copy from onboarding spec, including `Mirin` spelling.
+- **Join Request / Image stage (step 6):** Container `rounded-xl bg-muted/30 px-4 py-3.5`, title `1rem` semibold leading-5, description `1rem` leading-5 with expanded friendly copy explaining free-text disabled and ability to continue sending images. Image upload dialog reused, button already min-h-12 from Stage 2.
+- **Footer:** `shrink-0 border-t bg-background px-4 pt-3` `paddingBottom calc(1rem + env(safe-area-inset-bottom))` for safe-area, `space-y-3`, max-w-3xl centered.
+- **Universal:** No colored gradients, no emojis, system font global, 1rem floor enforced, large touch targets 44px+ (options min-h-12, header min-h-16, retry button min-h-9), safe-area top+bottom, keyboard/screen-reader, reduced-motion respected.
+- **Visual hierarchy:** header (coach identity) → conversation history → error (if any) → question options OR join-request image stage, with deterministic chronological ordering preserved from onboarding spec.
 
 ## Form UX principles for applicable later stages
 
