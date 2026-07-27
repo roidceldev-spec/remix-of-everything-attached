@@ -36,21 +36,21 @@ export function ProgressPicturesDashboardSection({
   const hasTodayBatch = batches.some((batch) => batch.captureDate === localProgressPictureDate());
 
   return (
-    <section aria-labelledby="progress-pictures-heading" className="mt-10 space-y-3">
+    <section aria-labelledby="progress-pictures-heading" className="space-y-4">
       <Link
         to="/client/progress-pictures"
-        className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="group block rounded-xl border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label="Open Progress Pictures"
       >
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 id="progress-pictures-heading" className="text-lg font-semibold text-foreground">
+          <div className="min-w-0 flex-1">
+            <h2 id="progress-pictures-heading" className="text-[1.125rem] font-semibold tracking-[-0.01em] text-foreground">
               Progress Pictures
             </h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="mt-1 text-[1rem] leading-5 text-muted-foreground">
               {habitComplete
-                ? "Click to see Progress Pictures and adjust preview"
-                : "Take progress pictures for seven days to start building the habit."}
+                ? "Tap to review your progress pictures and adjust your preview"
+                : "Take progress pictures for seven days to start building the habit"}
             </p>
           </div>
           <ChevronRight
@@ -60,7 +60,7 @@ export function ProgressPicturesDashboardSection({
         </div>
 
         {habitComplete ? (
-          <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-2.5">
             {latest.map((batch) => {
               const preview = getProgressPicturePreview(batch);
               return (
@@ -80,36 +80,36 @@ export function ProgressPicturesDashboardSection({
       </Link>
 
       {error && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-destructive/40 px-3 py-2">
-          <p className="flex min-w-0 items-center gap-2 text-xs text-destructive">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3">
+          <p className="flex min-w-0 items-center gap-2 text-[1rem] leading-5 text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>{error}</span>
+            <span className="min-w-0 flex-1">{error}</span>
           </p>
-          <Button type="button" size="sm" variant="outline" onClick={onRetry}>
-            <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
+          <Button type="button" size="sm" variant="outline" onClick={onRetry} className="min-h-9 shrink-0 rounded-lg">
+            <RotateCw className="h-4 w-4" aria-hidden="true" />
             Retry
           </Button>
         </div>
       )}
 
       {!hasTodayBatch && (
-        <>
+        <div className="space-y-2.5">
           <Button
             type="button"
-            className="w-full"
+            className="min-h-12 w-full justify-center rounded-xl text-[1rem] font-semibold"
             disabled={loading || error !== null}
             aria-describedby="progress-upload-status"
             onClick={() => setUploadOpen(true)}
           >
-            <Camera className="h-4 w-4" aria-hidden="true" />
+            <Camera className="h-5 w-5" aria-hidden="true" />
             Take today&apos;s progress pictures
           </Button>
-          <p id="progress-upload-status" className="text-xs text-muted-foreground">
+          <p id="progress-upload-status" className="text-[1rem] leading-5 text-muted-foreground">
             {loading
-              ? "Checking today’s progress pictures…"
+              ? "Checking today's progress pictures..."
               : "Choose your camera or gallery. Pictures are optimized before local storage."}
           </p>
-        </>
+        </div>
       )}
 
       <ProgressPictureUploadDialog
@@ -127,21 +127,21 @@ export function ProgressPicturesDashboardSection({
 function HabitProgress({ completedDays }: { completedDays: number }) {
   return (
     <div
-      className="mt-3"
+      className="mt-4"
       role="progressbar"
       aria-label={`${completedDays} of 7 progress-picture days complete`}
       aria-valuemin={0}
       aria-valuemax={7}
       aria-valuenow={completedDays}
     >
-      <div className="grid grid-cols-6 gap-1.5">
+      <div className="grid grid-cols-6 gap-2">
         {Array.from({ length: 6 }, (_, index) => {
           const complete = index < completedDays;
           return (
             <div
               key={index}
               className={cn(
-                "flex aspect-square items-center justify-center rounded-md border",
+                "flex aspect-square items-center justify-center rounded-lg border",
                 complete
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-dashed border-border bg-muted/30 text-muted-foreground",
@@ -149,9 +149,9 @@ function HabitProgress({ completedDays }: { completedDays: number }) {
               aria-label={`Day ${index + 1} ${complete ? "complete" : "not complete"}`}
             >
               {complete ? (
-                <Check className="h-4 w-4" aria-hidden="true" />
+                <Check className="h-5 w-5" aria-hidden="true" />
               ) : (
-                <Camera className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                <Camera className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
               )}
             </div>
           );
@@ -159,7 +159,7 @@ function HabitProgress({ completedDays }: { completedDays: number }) {
       </div>
       <div
         className={cn(
-          "mt-1.5 flex h-12 items-center justify-center rounded-md border",
+          "mt-2 flex min-h-12 items-center justify-center rounded-lg border",
           completedDays >= 7
             ? "border-primary bg-primary text-primary-foreground"
             : "border-dashed border-border bg-muted/30 text-muted-foreground",
@@ -167,18 +167,18 @@ function HabitProgress({ completedDays }: { completedDays: number }) {
         aria-label={`Day 7 ${completedDays >= 7 ? "complete" : "not complete"}`}
       >
         {completedDays >= 7 ? (
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
-            <Check className="h-4 w-4" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2 text-[1rem] font-semibold">
+            <Check className="h-5 w-5" aria-hidden="true" />
             Seven-day habit complete
           </span>
         ) : (
-          <span className="inline-flex items-center gap-2 text-xs font-medium">
-            <Camera className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+          <span className="inline-flex items-center gap-2 text-[1rem] font-medium">
+            <Camera className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             Day 7
           </span>
         )}
       </div>
-      <p className="mt-2 text-right text-xs font-medium text-muted-foreground">
+      <p className="mt-2 text-right text-[1rem] font-medium leading-5 text-muted-foreground">
         {completedDays}/7 days
       </p>
     </div>
