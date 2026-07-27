@@ -23,7 +23,7 @@ export function CoachChatInbox({ showHeader = true }: { showHeader?: boolean }) 
       await refreshUnread();
     } catch (nextError) {
       console.error(nextError);
-      setError("Local chats could not be loaded.");
+      setError("Local chats could not be loaded because local storage is unavailable. Check device storage and try again.");
     } finally {
       setLoading(false);
     }
@@ -50,41 +50,41 @@ export function CoachChatInbox({ showHeader = true }: { showHeader?: boolean }) 
       {showHeader && (
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Chats</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-[1rem] leading-6 text-muted-foreground">
             Read and reply to messages from your clients.
           </p>
         </div>
       )}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading chats…</p>
+        <p className="text-[1rem] leading-6 text-muted-foreground">Loading chats…</p>
       ) : error ? (
-        <div className="rounded-lg border border-destructive/40 p-4">
-          <p className="flex items-center gap-2 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
-            {error}
+        <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+          <p className="flex items-start gap-2 text-[1rem] leading-6 text-destructive">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 flex-1">{error}</span>
           </p>
           <Button
             type="button"
             size="sm"
             variant="outline"
-            className="mt-3"
+            className="mt-3 min-h-10 rounded-xl"
             onClick={() => void load()}
           >
-            <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
+            <RotateCw className="h-4 w-4" aria-hidden="true" />
             Try again
           </Button>
         </div>
       ) : conversations.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="rounded-xl border border-dashed border-border p-8 text-center">
           <MessageCircle className="mx-auto h-7 w-7 text-muted-foreground" aria-hidden="true" />
-          <h2 className="mt-3 text-sm font-medium text-foreground">No clients yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="mt-3 text-[1.125rem] font-medium leading-tight text-foreground">No clients yet</h2>
+          <p className="mt-1.5 text-[1rem] leading-6 text-muted-foreground">
             Client conversations will appear here automatically.
           </p>
         </div>
       ) : (
-        <ul role="list" className="overflow-hidden rounded-lg border border-border">
+        <ul role="list" className="overflow-hidden rounded-xl border border-border">
           {conversations.map((conversation) => {
             const unread = conversation.unreadMessages > 0;
             return (
@@ -93,29 +93,29 @@ export function CoachChatInbox({ showHeader = true }: { showHeader?: boolean }) 
                   to="/coach/chat/$clientId"
                   params={{ clientId: conversation.client.id }}
                   className={cn(
-                    "flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                    "flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                     unread && "bg-primary/10",
                   )}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <p
-                        className={cn("truncate text-sm", unread ? "font-semibold" : "font-medium")}
+                        className={cn("truncate text-[1rem] leading-6", unread ? "font-semibold" : "font-medium")}
                       >
                         {conversation.client.name}
                       </p>
                       {unread && (
-                        <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
+                        <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-md bg-destructive px-1.5 py-0.5 text-[0.75rem] font-bold leading-none text-destructive-foreground">
                           {conversation.unreadMessages > 99 ? "99+" : conversation.unreadMessages}
                         </span>
                       )}
                     </div>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate text-[1rem] leading-5 text-muted-foreground">
                       @{conversation.client.username}
                     </p>
                     <p
                       className={cn(
-                        "mt-1 truncate text-sm",
+                        "mt-1 truncate text-[1rem] leading-5",
                         unread ? "text-foreground" : "text-muted-foreground",
                       )}
                     >
@@ -124,14 +124,14 @@ export function CoachChatInbox({ showHeader = true }: { showHeader?: boolean }) 
                         : "No messages yet"}
                     </p>
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="flex shrink-0 flex-col items-end gap-1 text-right">
                     {conversation.lastMessageAt && (
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[0.8125rem] leading-4 text-muted-foreground">
                         {formatInboxTime(conversation.lastMessageAt)}
                       </p>
                     )}
                     <ChevronRight
-                      className="ml-auto mt-1 h-4 w-4 text-muted-foreground"
+                      className="h-5 w-5 text-muted-foreground"
                       aria-hidden="true"
                     />
                   </div>

@@ -9,23 +9,23 @@ export function CoachMessagingPage() {
     <section className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Messaging</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1.5 text-[1rem] leading-6 text-muted-foreground">
           Client conversations, automated messages, and broadcasts.
         </p>
       </div>
 
       <Tabs defaultValue="conversations" className="w-full">
-        <TabsList className="grid h-auto w-full grid-cols-3">
-          <TabsTrigger value="conversations" className="gap-1.5 px-2 py-2 text-xs sm:text-sm">
-            <MessagesSquare className="h-4 w-4" aria-hidden="true" />
+        <TabsList className="grid h-auto w-full grid-cols-3 gap-1 rounded-xl p-1">
+          <TabsTrigger value="conversations" className="min-h-11 gap-1.5 rounded-lg px-3 py-2.5 text-[1rem] font-medium">
+            <MessagesSquare className="h-5 w-5" aria-hidden="true" />
             Conversations
           </TabsTrigger>
-          <TabsTrigger value="automations" className="gap-1.5 px-2 py-2 text-xs sm:text-sm">
-            <Bot className="h-4 w-4" aria-hidden="true" />
+          <TabsTrigger value="automations" className="min-h-11 gap-1.5 rounded-lg px-3 py-2.5 text-[1rem] font-medium">
+            <Bot className="h-5 w-5" aria-hidden="true" />
             Automations
           </TabsTrigger>
-          <TabsTrigger value="broadcasts" className="gap-1.5 px-2 py-2 text-xs sm:text-sm">
-            <Radio className="h-4 w-4" aria-hidden="true" />
+          <TabsTrigger value="broadcasts" className="min-h-11 gap-1.5 rounded-lg px-3 py-2.5 text-[1rem] font-medium">
+            <Radio className="h-5 w-5" aria-hidden="true" />
             Broadcasts
           </TabsTrigger>
         </TabsList>

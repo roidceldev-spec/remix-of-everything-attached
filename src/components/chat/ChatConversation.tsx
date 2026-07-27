@@ -67,7 +67,7 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       })
       .catch((nextError: unknown) => {
         console.error(nextError);
-        if (!cancelled) setError("This local conversation could not be loaded.");
+        if (!cancelled) setError("This local conversation could not be loaded. The local chat store may be unavailable. Try refreshing and checking device storage.");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -128,7 +128,7 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       await loadMessages(threadId);
     } catch (nextError) {
       console.error(nextError);
-      setError("The message could not be sent. Try again.");
+      setError("Your message could not be sent because local storage is unavailable or full. Check device storage and try again.");
     } finally {
       setSending(false);
     }
@@ -144,7 +144,7 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       setJoinRequestPending(false);
     } catch (nextError) {
       setError(
-        nextError instanceof Error ? nextError.message : "The Join Request could not be approved.",
+        nextError instanceof Error ? nextError.message : "The Join Request could not be approved. Local data may be unavailable.",
       );
     } finally {
       setApproving(false);
@@ -156,43 +156,43 @@ export function ChatConversation({ clientId }: { clientId: string }) {
   return (
     <section className="flex min-h-[calc(100dvh-11rem)] flex-col">
       <div className="flex items-center gap-3 border-b border-border pb-3">
-        <Button asChild variant="ghost" size="icon" className="shrink-0">
+        <Button asChild variant="ghost" size="icon" className="min-h-11 min-w-11 shrink-0 rounded-xl">
           <Link
             to={backTo}
             aria-label={account.role === "coach" ? "Back to chats" : "Back to Dashboard"}
           >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Link>
         </Button>
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold text-foreground">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-[1.125rem] font-semibold leading-tight tracking-[-0.01em] text-foreground">
             {peer?.name ?? (account.role === "coach" ? "Client" : "Coach")}
           </h1>
-          {peer && <p className="truncate text-xs text-muted-foreground">@{peer.username}</p>}
+          {peer && <p className="truncate text-[1rem] leading-5 text-muted-foreground">@{peer.username}</p>}
         </div>
       </div>
 
       {account.role === "coach" && joinRequestPending && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <div>
-            <p className="text-sm font-semibold text-foreground">Pending Join Request</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Review the complete onboarding conversation and submitted images.
+          <div className="min-w-0 flex-1">
+            <p className="text-[1rem] font-semibold leading-5 text-foreground">Pending Join Request</p>
+            <p className="mt-1 text-[1rem] leading-5 text-muted-foreground">
+              Review the complete onboarding conversation and submitted images before approving.
             </p>
           </div>
-          <Button type="button" disabled={approving} onClick={() => void approve()}>
+          <Button type="button" disabled={approving} onClick={() => void approve()} className="min-h-11 rounded-xl">
             {approving ? "Approving…" : "Approve Client"}
           </Button>
         </div>
       )}
 
-      <div className="flex-1 space-y-3 py-4" aria-live="polite">
+      <div className="flex-1 space-y-3.5 py-5" aria-live="polite">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading conversation…</p>
+          <p className="text-[1rem] leading-6 text-muted-foreground">Loading conversation…</p>
         ) : messages.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center">
-            <p className="text-sm font-medium text-foreground">No messages yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-border p-8 text-center">
+            <p className="text-[1.125rem] font-medium leading-tight text-foreground">No messages yet</p>
+            <p className="mt-1.5 text-[1rem] leading-6 text-muted-foreground">
               Send the first message to start the conversation.
             </p>
           </div>
@@ -209,13 +209,13 @@ export function ChatConversation({ clientId }: { clientId: string }) {
       </div>
 
       {error && (
-        <p className="mb-2 flex items-center gap-2 rounded-md border border-destructive/40 px-3 py-2 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-          {error}
+        <p className="mb-3 flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-[1rem] leading-5 text-destructive">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+          <span className="min-w-0 flex-1">{error}</span>
         </p>
       )}
 
-      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] rounded-lg border border-border bg-background p-2 shadow-sm">
+      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] rounded-xl border border-border bg-background p-2.5 shadow-sm">
         <div className="flex items-end gap-2">
           {account.role === "client" && (
             <ChatImageUploadDialog
@@ -241,7 +241,7 @@ export function ChatConversation({ clientId }: { clientId: string }) {
             rows={1}
             maxLength={MAX_CHAT_MESSAGE_LENGTH}
             disabled={loading || sending || !threadId}
-            className="min-h-10 resize-none py-2"
+            className="min-h-12 resize-none rounded-xl py-3 text-[1rem] leading-6"
             aria-label="Message"
           />
           <Button
@@ -250,16 +250,16 @@ export function ChatConversation({ clientId }: { clientId: string }) {
             disabled={!draft.trim() || loading || sending || !threadId}
             onClick={() => void send()}
             aria-label="Send message"
-            className="h-10 w-10 shrink-0"
+            className="min-h-12 min-w-12 shrink-0 rounded-xl"
           >
             {sending ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
             ) : (
-              <Send className="h-4 w-4" aria-hidden="true" />
+              <Send className="h-5 w-5" aria-hidden="true" />
             )}
           </Button>
         </div>
-        <p className="mt-1 px-1 text-right text-[10px] text-muted-foreground">
+        <p className="mt-1.5 px-1 text-right text-[0.875rem] leading-4 text-muted-foreground">
           {draft.length}/{MAX_CHAT_MESSAGE_LENGTH}
         </p>
       </div>
