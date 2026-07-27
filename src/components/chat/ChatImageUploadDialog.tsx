@@ -68,7 +68,7 @@ export function ChatImageUploadDialog({
       ]);
     } catch (nextError) {
       setError(
-        nextError instanceof Error ? nextError.message : "These images could not be processed.",
+        nextError instanceof Error ? nextError.message : "These images could not be processed. Try again with smaller images and check device storage.",
       );
     } finally {
       setProcessing(false);
@@ -91,7 +91,7 @@ export function ChatImageUploadDialog({
       await onSent();
       setOpen(false);
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : "The images could not be sent.");
+      setError(nextError instanceof Error ? nextError.message : "The images could not be sent because local storage is unavailable or full. Check device storage and try again.");
     } finally {
       setSending(false);
     }
@@ -105,15 +105,16 @@ export function ChatImageUploadDialog({
           variant="outline"
           size={iconOnly ? "icon" : "default"}
           aria-label={buttonLabel}
+          className={iconOnly ? "min-h-11 min-w-11 rounded-xl" : "min-h-12 rounded-xl text-[1rem]"}
         >
-          <ImagePlus className="h-4 w-4" aria-hidden="true" />
+          <ImagePlus className="h-5 w-5" aria-hidden="true" />
           {!iconOnly && buttonLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto rounded-xl sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Send images</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[1.25rem] font-semibold tracking-tight">Send images</DialogTitle>
+          <DialogDescription className="text-[1rem] leading-5 text-muted-foreground">
             Select one to six images. They are optimized and stored only in this browser.
           </DialogDescription>
         </DialogHeader>
@@ -141,14 +142,15 @@ export function ChatImageUploadDialog({
           }}
         />
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2.5">
           <Button
             type="button"
             variant="outline"
             disabled={processing || sending || images.length >= 6}
             onClick={() => cameraRef.current?.click()}
+            className="min-h-12 rounded-xl text-[1rem]"
           >
-            <Camera className="h-4 w-4" aria-hidden="true" />
+            <Camera className="h-5 w-5" aria-hidden="true" />
             Camera
           </Button>
           <Button
@@ -156,18 +158,19 @@ export function ChatImageUploadDialog({
             variant="outline"
             disabled={processing || sending || images.length >= 6}
             onClick={() => galleryRef.current?.click()}
+            className="min-h-12 rounded-xl text-[1rem]"
           >
-            <Images className="h-4 w-4" aria-hidden="true" />
+            <Images className="h-5 w-5" aria-hidden="true" />
             Gallery
           </Button>
         </div>
 
         {images.length > 0 && (
-          <ul className="grid grid-cols-3 gap-2">
+          <ul className="grid grid-cols-3 gap-2.5">
             {images.map((image) => (
               <li
                 key={image.id}
-                className="relative overflow-hidden rounded-lg border border-border"
+                className="relative overflow-hidden rounded-xl border border-border"
               >
                 <img
                   src={image.previewUrl}
@@ -175,14 +178,14 @@ export function ChatImageUploadDialog({
                   className="aspect-square w-full object-cover"
                 />
                 <div className="flex items-center justify-between gap-1 p-1.5">
-                  <span className="truncate text-[10px] text-muted-foreground">
+                  <span className="truncate text-[0.8125rem] leading-4 text-muted-foreground">
                     {formatProgressPictureBytes(image.byteSize)}
                   </span>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-8 w-8 rounded-lg"
                     disabled={sending}
                     aria-label="Remove image"
                     onClick={() => {
@@ -192,7 +195,7 @@ export function ChatImageUploadDialog({
                       );
                     }}
                   >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               </li>
@@ -201,9 +204,9 @@ export function ChatImageUploadDialog({
         )}
 
         {(processing || sending) && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2.5 text-[1rem] leading-6 text-muted-foreground">
+              <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
               {processing ? "Processing images…" : "Saving images…"}
             </div>
             <Progress value={progress} />
@@ -211,17 +214,18 @@ export function ChatImageUploadDialog({
         )}
 
         {error && (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-[1rem] leading-5 text-destructive">
             {error}
           </p>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
             type="button"
             variant="ghost"
             disabled={processing || sending}
             onClick={() => setOpen(false)}
+            className="min-h-11 rounded-xl"
           >
             Cancel
           </Button>
@@ -229,6 +233,7 @@ export function ChatImageUploadDialog({
             type="button"
             disabled={!images.length || processing || sending}
             onClick={() => void send()}
+            className="min-h-11 rounded-xl"
           >
             Send {images.length || ""} image{images.length === 1 ? "" : "s"}
           </Button>
