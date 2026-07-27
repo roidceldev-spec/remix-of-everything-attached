@@ -17,7 +17,15 @@ The text size used by `JFL, look at this.` establishes the minimum readable size
 - Tailwind `text-xs`, `text-sm`, responsive small-text variants, and known arbitrary values below 1rem are raised to the minimum.
 - The system UI sans-serif family used by the transformation statistics is explicitly applied throughout the app, including form controls.
 
-## Section 1 — rotating headline
+## Section 1 — testimonial proof and rotating headline
+
+The previous white hero image placeholder is removed. The top of the section displays all three approved testimonials in a compact static proof stack:
+
+1. `“Dethnic saved my life” — Tushar`
+2. `“Holy shit I haven’t trained in 2 weeks and my wrists are still 18 cm when I measured. It's not just swelling.” — Garret`
+3. `“5' 5 - 5' 10 with No More Copium 1-1 coaching. Every dollar was worth it” — Dylan`
+
+All three remain visible without a carousel or additional competing animation. Each quote is followed by an em dash and attribution. Text remains at least 1rem.
 
 Phrase order remains:
 
@@ -40,9 +48,9 @@ Timing:
 - Infinite loop.
 - Reduced-motion users receive a short fade instead.
 
-## Sections 1 and 2 — image-to-black gradient
+## Sections 1 and 2 — black transparent fades
 
-The white hero placeholder/image and Section 2 transformation image must blend gradually into the black text region with no visible image-box seam.
+The dark testimonial region in Section 1 and transformation image in Section 2 must blend gradually into the black text region with no visible box seam. Only black transparent gradients are allowed; colored gradients are prohibited.
 
 The gradient uses a strong multi-stop fade:
 
@@ -52,7 +60,7 @@ The gradient uses a strong multi-stop fade:
 - Near-black before the source image ends.
 - Solid black before and across the image boundary.
 
-Section 3 keeps its existing gradient because it was already visually acceptable.
+Section 3 keeps its existing black transparent gradient because it was already visually acceptable. The transformation wipe is a solid red line rather than a colored gradient.
 
 ## Proportional placement system
 
@@ -121,6 +129,10 @@ All icons:
 
 ## Verification checklist
 
+- [ ] White hero placeholder is absent.
+- [ ] All three testimonials render in the approved order with exact wording and attribution.
+- [ ] Testimonial stack does not clip or overlap the rotating headline on short Android viewports.
+- [ ] Landing UI contains no emojis or colored gradients.
 - [ ] Phrase remains still for 1,000ms.
 - [ ] Both phrases move simultaneously for 500ms.
 - [ ] No headline overlap.
