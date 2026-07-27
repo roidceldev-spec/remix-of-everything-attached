@@ -61,7 +61,7 @@ export function TransformationSection({
           }`}
         />
         {phase === "transforming" && (
-          <div className="landing-transform-wipe pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-red-500/65 to-transparent blur-sm" />
+          <div className="landing-transform-wipe pointer-events-none absolute inset-y-0 w-1 bg-red-500/80" />
         )}
       </div>
 

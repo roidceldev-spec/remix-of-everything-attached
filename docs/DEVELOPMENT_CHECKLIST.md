@@ -1,8 +1,8 @@
 # No More Copium — Local Prototype Development Checklist
 
-Last updated: 2026-07-25
+Last updated: 2026-07-27
 
-Current repository: `https://github.com/nihalttmogs-beep/everything-attached`
+Current repository: `https://github.com/roidceldev-spec/remix-of-everything-attached`
 
 Current architecture: fully local browser prototype. Lovable is used only for preview, publishing, GitHub synchronization, and patch application. Supabase/Lovable Cloud runtime code is disabled and archived under `cloud-archive/supabase/`.
 
@@ -208,9 +208,16 @@ Status: implemented in development; requires deployment and browser verification
 - [x] Put highlighted lead and unhighlighted body on separate lines.
 - [x] Add six approved minimal red icons.
 - [x] Preserve exact value-card order and copy.
-- [ ] Browser-test animation timing, gradients, minimum text size, card fit, icons, and Android viewport clipping.
+- [x] Replace the Section 1 white image placeholder with all three approved testimonials.
+- [x] Keep testimonial proof static so it does not compete with the rotating headline.
+- [x] Remove the landing transformation's colored gradient wipe.
+- [x] Preserve only approved black transparent gradients on the landing experience.
+- [ ] Browser-test animation timing, fades, testimonials, minimum text size, card fit, icons, and Android viewport clipping.
 
-Detailed specification: `docs/LANDING_UI_OVERHAUL_SPEC.md`
+Detailed specifications:
+
+- `docs/LANDING_UI_OVERHAUL_SPEC.md`
+- `docs/UI_UX_OVERHAUL_MAP.md`
 
 ## Deferred production work
 

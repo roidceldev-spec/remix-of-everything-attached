@@ -4,6 +4,7 @@ import { ChevronDown, Dumbbell, MessageSquareText, TrendingUp } from "lucide-rea
 import { useVerticalSectionPager } from "@/hooks/use-vertical-section-pager";
 import { RotatingHeadline } from "./RotatingHeadline";
 import { TransformationSection } from "./TransformationSection";
+import { LANDING_TESTIMONIALS } from "./landing-content";
 
 const SECTION_COUNT = 4;
 
@@ -51,13 +52,28 @@ export function LandingPage() {
 function HeroSection({ active, onContinue }: { active: boolean; onContinue: () => void }) {
   return (
     <section className="relative h-full min-h-0 overflow-hidden bg-black" aria-hidden={!active}>
-      <div
-        className="absolute inset-x-0 top-0 h-[62%] bg-white"
-        aria-label="Hero image placeholder"
-      />
+      <div className="absolute inset-x-0 top-0 h-[62%] bg-[#0d0d0d]" />
       <div className="landing-image-fade pointer-events-none absolute inset-x-0 top-[32%] h-[34%]" />
 
-      <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[48%] z-[1] grid grid-rows-3 px-5">
+      <aside
+        className="absolute inset-x-0 top-0 z-[1] h-[49%] px-5"
+        aria-label="Client testimonials"
+      >
+        <div className="mx-auto grid h-full w-full max-w-xl content-center gap-[clamp(0.25rem,0.8dvh,0.5rem)] py-[clamp(0.5rem,1.5dvh,0.9rem)]">
+          {LANDING_TESTIMONIALS.map((testimonial) => (
+            <blockquote key={testimonial.name} className="border-l-2 border-red-500/80 pl-3">
+              <p className="text-[clamp(1rem,3.8vw,1.08rem)] font-medium leading-[1.15] tracking-[-0.015em] text-white">
+                “{testimonial.quote}”
+              </p>
+              <footer className="mt-1 font-semibold leading-[1.15] text-red-500">
+                <cite className="not-italic">— {testimonial.name}</cite>
+              </footer>
+            </blockquote>
+          ))}
+        </div>
+      </aside>
+
+      <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[48%] z-[2] grid grid-rows-3 px-5">
         <div className="flex min-h-0 items-center justify-center">
           <div className="landing-display w-full text-[clamp(2.15rem,10vw,5.25rem)] font-semibold leading-[0.96] tracking-[-0.045em] text-white">
             <RotatingHeadline />
