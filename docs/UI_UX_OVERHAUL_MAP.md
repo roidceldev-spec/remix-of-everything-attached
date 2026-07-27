@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1, Stage 2, Stage 3 and Stage 4 implemented in development; deployment and browser verification required.
+Status: Stage 1, Stage 2, Stage 3, Stage 4 and Stage 5 implemented in development; deployment and browser verification required.
 
 Last updated: 2026-07-27
 
@@ -45,8 +45,8 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
 2. **Client Mode dashboard UI and UX** — implemented in development.
 3. **Chat system UI and UX** — implemented in development.
 4. **Onboarding UI and UX** — implemented in development.
-5. **Classic workout mode UI and UX** — next.
-6. **Guided workout mode UI and UX**.
+5. **Classic workout mode UI and UX** — implemented in development.
+6. **Guided workout mode UI and UX** — next.
 7. **Workout History** — list and calendar views.
 8. **Loading state**.
    - Skeleton loading must use a slow, steady shimmer wave moving from left to right.
@@ -124,6 +124,18 @@ Status: implemented in development.
 - **Footer:** `shrink-0 border-t bg-background px-4 pt-3` `paddingBottom calc(1rem + env(safe-area-inset-bottom))` for safe-area, `space-y-3`, max-w-3xl centered.
 - **Universal:** No colored gradients, no emojis, system font global, 1rem floor enforced, large touch targets 44px+ (options min-h-12, header min-h-16, retry button min-h-9), safe-area top+bottom, keyboard/screen-reader, reduced-motion respected.
 - **Visual hierarchy:** header (coach identity) → conversation history → error (if any) → question options OR join-request image stage, with deterministic chronological ordering preserved from onboarding spec.
+
+## Stage 5 — Classic workout mode
+
+Status: implemented in development.
+
+- **PreviewHeader:** `sticky top-0` with `env(safe-area-inset-top)` `py-3.5`, title `1.125rem` tracking-tight, subtitle `1rem`, timer `rounded-md px-2.5 py-1 text-[0.875rem]` tabular-nums, Guided button `min-h-10 rounded-lg text-[1rem]`, exit button `min-h-11 min-w-11 rounded-xl h-5 w-5`.
+- **ModeChooser:** `min-h-full max-w-md gap-8 p-6` with safe-area padding, label `0.8125rem` uppercase, headline clamp `1.5rem-2rem` tight, prompt `1rem leading-6`, cards `min-h-16 rounded-xl border bg-card p-5 shadow`, title `1.125rem` tight, description `1rem leading-5`, chevron 5w5, back button `min-h-11 rounded-xl text-[1rem]`.
+- **ClassicMode container:** `space-y-6 p-4`, selecting info `rounded-xl px-4 py-3 text-[1rem]`, exercise sections `rounded-xl border bg-card p-5 shadow[0_1px_2px]`, heading `1.125rem` tight, notes `rounded-lg bg-muted/40 px-3.5 py-2.5` title `0.8125rem` uppercase desc `1rem leading-5`, set list `mt-4 space-y-3`.
+- **ClassicSetRow (core):** Outer `rounded-xl border p-4 shadow[0_1px_2px]` `bg-card` vs `border-primary/60 bg-primary/5` when completed, `ring-2 primary/30` when selected. Set label `1rem font-medium`. Complete button `min-h-10 rounded-lg px-3 py-1.5 text-[1rem]` icon h-4. Chips `rounded-md px-2.5 py-1 text-[0.75rem] font-medium uppercase` (was `rounded-full text-[10px]` blob). Suggested weight range `rounded-lg border bg-muted/30 px-3.5 py-2.5` title `0.8125rem` uppercase value `1rem leading-5 semibold tabular-nums`. Notes from coach same pattern `rounded-lg bg-muted/40`. Labels Weight/Reps/Notes `1rem font-medium leading-5 muted`. Inputs `min-h-12 rounded-xl text-[1rem]` via large variant. Textarea `min-h-12 resize-y rounded-xl py-3 text-[1rem] leading-6`. Buttons Finish workout / Select set / Cancel `min-h-12 rounded-xl text-[1rem] font-semibold` w-full grid `gap-2.5`.
+- **Badge audit for this surface:** Reduced blob `rounded-full` set-information badges to `rounded-md`, preserved copy/color/spacing/behavior.
+- **Universal:** No colored gradients, no emojis, system font global, 1rem floor enforced via existing CSS (all `text-xs`/`text-sm`/`text-[10px]` forced to 1rem), large touch targets 44px+ (all primary actions min-h-10/12, navigation 56px), safe-area top+bottom, keyboard focus rings, screen-reader labels, reduced-motion respected.
+- **Visual hierarchy:** header (title/subtitle/timer) → exercise cards → set rows (chips → suggested weight → coach notes → weight done → reps done → notes to coach) → finish action, with clear grouping and 1rem typography.
 
 ## Form UX principles for applicable later stages
 
