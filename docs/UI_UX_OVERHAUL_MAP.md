@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1 implemented in development; deployment and browser verification required.
+Status: Stage 1 and Stage 2 implemented in development; deployment and browser verification required.
 
 Last updated: 2026-07-27
 
@@ -42,8 +42,8 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
 
 1. **Landing page overhaul** — implemented in development.
    - No skeleton loading is required before the user leaves the public/access experience for onboarding.
-2. **Client Mode dashboard UI and UX** — next.
-3. **Chat system UI and UX**.
+2. **Client Mode dashboard UI and UX** — implemented in development.
+3. **Chat system UI and UX** — next.
 4. **Onboarding UI and UX**.
 5. **Classic workout mode UI and UX**.
 6. **Guided workout mode UI and UX**.
@@ -82,6 +82,22 @@ Implementation decisions:
 - The approved proportional headline, supporting line, and swipe-cue grid remains intact.
 - The dark testimonial background continues into black using only the approved black transparent fade.
 - The transformation wipe uses a solid red line rather than a prohibited colored gradient.
+
+## Stage 2 — Client Mode dashboard
+
+Status: implemented in development.
+
+- Top-left greeting using local timezone detection via `Date`. Preserves exact required phrase `Fighting crime? {name}` for 1-5 AM. Other time buckets use friendly human variants that rotate deterministically by day to avoid AI-like repetition.
+- Greeting hierarchy: large clamp headline, left-aligned, with supporting line "Here is what is lined up for you today."
+- Unread coach messages: prominent min-h-12 link, rounded-xl, primary/10 background, 8px icon container, 1rem text, accessible focus.
+- Today's workout: clear hierarchy — weekday label + "Today's workout" heading both 1rem-semibold, card rounded-xl with subtle shadow, workout name line-clamp-2 with title fallback, program name muted, Start workout button min-h-12 rounded-xl full-width on mobile, sm:auto, Play icon.
+- TodayState (rest / no program / unavailable): rounded-xl dashed, 1.125rem title, 1rem description, muted background.
+- Progress Pictures dashboard: heading 1.125rem-semibold, description 1rem, grid gap 2.5, tiles rounded-lg, habit progress rounded-lg, min-h-12 touch targets, text 1rem throughout, error container rounded-xl, Take pictures button min-h-12 rounded-xl.
+- Badge audit for this surface: reduced overly rounded `rounded-full` Client Preview and Coach Mode badges to `rounded-md`. Bottom navigation items increased min-height to 56px and text to 13px-> enforced to 1rem via universal floor, with safe-area padding preserved.
+- No colored gradients, no emojis.
+- Large touch targets: all primary actions min-h-12, navigation 56px.
+- Safe-area, keyboard, screen-reader, reduced-motion preserved.
+- Visual hierarchy: greeting → unread → today's workout → progress pictures.
 
 ## Form UX principles for applicable later stages
 

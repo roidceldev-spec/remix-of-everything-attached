@@ -59,42 +59,64 @@ export function ClientDashboard() {
   if (!hydrated || !client || client.role !== "client") return null;
 
   return (
-    <section>
+    <div className="flex flex-col gap-10">
+      {/* Greeting - top-left per spec, timezone-aware via local Date */}
+      <div className="space-y-1">
+        <h1 className="text-left text-[clamp(1.75rem,6vw,2.25rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground">
+          {getClientGreeting(client.name, now)}
+        </h1>
+        <p className="text-left text-[1rem] leading-6 text-muted-foreground">
+          Here is what is lined up for you today.
+        </p>
+      </div>
+
       {chatSummary.unreadMessages > 0 && (
         <Link
           to="/client/chat"
-          className="mb-3 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-h-12 items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-[1rem] font-medium text-foreground transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          <MessageCircle className="h-4 w-4 text-primary" aria-hidden="true" />
-          <span>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1 text-left leading-5">
             You have {chatSummary.unreadMessages} unread message
-            {chatSummary.unreadMessages === 1 ? "" : "s"} from your coach.
+            {chatSummary.unreadMessages === 1 ? "" : "s"} from your coach
           </span>
         </Link>
       )}
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-        {getClientGreeting(client.name, now)}
-      </h1>
 
-      <section aria-labelledby="today-workout-heading" className="mt-10 space-y-3">
-        <h2 id="today-workout-heading" className="text-sm font-medium text-muted-foreground">
-          Today&apos;s workout
-        </h2>
+      <section aria-labelledby="today-workout-heading" className="space-y-3">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2
+            id="today-workout-heading"
+            className="text-[1rem] font-semibold tracking-[-0.01em] text-foreground"
+          >
+            Today&apos;s workout
+          </h2>
+          <span className="text-[1rem] font-medium text-muted-foreground">
+            {new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(now)}
+          </span>
+        </div>
 
         {todayWorkout && assignedProgram ? (
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             <h3
-              className="truncate text-xl font-semibold text-card-foreground"
+              className="line-clamp-2 break-words text-[1.375rem] font-semibold leading-[1.2] tracking-[-0.015em] text-card-foreground"
               title={todayWorkout.name}
             >
               {todayWorkout.name}
             </h3>
-            <Button asChild className="mt-5 w-full sm:w-auto">
+            {assignedProgram.name && (
+              <p className="mt-1.5 line-clamp-1 text-[1rem] leading-5 text-muted-foreground">
+                {assignedProgram.name}
+              </p>
+            )}
+            <Button asChild className="mt-5 min-h-12 w-full justify-center rounded-xl text-[1rem] font-semibold sm:w-auto">
               <Link
                 to="/client/programs/$programId/workouts/$workoutId"
                 params={{ programId: assignedProgram.id, workoutId: todayWorkout.id }}
               >
-                <Play className="h-4 w-4" aria-hidden="true" />
+                <Play className="h-5 w-5" aria-hidden="true" />
                 Start workout
               </Link>
             </Button>
@@ -112,7 +134,7 @@ export function ClientDashboard() {
         onRetry={() => void progressPictures.refresh()}
         onUploaded={progressPictures.refresh}
       />
-    </section>
+    </div>
   );
 }
 
@@ -128,19 +150,19 @@ function TodayState({
 
   if (hasAssignedProgram && assignment?.type === "rest") {
     title = "Rest day";
-    description = "No workout is scheduled for today.";
+    description = "No workout is scheduled for today. Take the recovery — you earned it.";
   } else if (hasAssignedProgram && assignment?.type === "workout") {
     title = "Workout unavailable";
-    description = "The workout assigned for today could not be found.";
+    description = "The workout assigned for today could not be found. Your coach may have updated the program.";
   } else if (hasAssignedProgram) {
     title = "No workout scheduled";
     description = "Your program does not have a workout assigned for today.";
   }
 
   return (
-    <div className="rounded-lg border border-dashed border-border p-6">
-      <h3 className="text-base font-medium text-foreground">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+    <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6">
+      <h3 className="text-[1.125rem] font-semibold leading-tight text-foreground">{title}</h3>
+      <p className="mt-1.5 text-[1rem] leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }

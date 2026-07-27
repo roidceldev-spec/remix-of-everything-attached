@@ -45,7 +45,7 @@ export function ClientShell() {
           </Link>
           <div className="flex items-center gap-1">
             {account.isPreview && (
-              <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              <span className="rounded-md border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                 Client Preview
               </span>
             )}
@@ -78,7 +78,7 @@ export function ClientShell() {
                   to={item.to}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-16 flex-col items-center justify-center gap-1 px-2 py-2 text-center text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                    "flex min-h-[56px] flex-col items-center justify-center gap-1 px-2 py-2.5 text-center text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                     active && "text-foreground",
                   )}
                 >

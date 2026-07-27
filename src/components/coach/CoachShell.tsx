@@ -48,7 +48,7 @@ export function CoachShell() {
             No More Copium
           </Link>
           <div className="flex items-center gap-1">
-            <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            <span className="rounded-md border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
               Coach Mode
             </span>
             <ChatButton />
@@ -88,7 +88,7 @@ export function CoachShell() {
                   to={item.to}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-[56px] flex-col items-center justify-center gap-1 px-2 py-2 text-xs font-medium transition-colors",
+                    "flex min-h-[56px] flex-col items-center justify-center gap-1 px-2 py-2.5 text-[13px] font-medium transition-colors",
                     active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
