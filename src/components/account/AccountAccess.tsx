@@ -73,7 +73,16 @@ export function AccountAccess() {
     }
   };
 
-  if (loading) return <div className="min-h-32" aria-label="Loading local accounts" />;
+  if (loading) {
+    return (
+      <div className="space-y-3" aria-label="Loading local accounts">
+        <div className="h-10 w-32 rounded-lg bg-muted/60 skeleton-shimmer" />
+        <div className="h-14 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        <div className="h-14 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        <div className="h-10 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+      </div>
+    );
+  }
 
   if (creating) {
     return step === "details" ? (
