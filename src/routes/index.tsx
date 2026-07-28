@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "No More Copium" },
       {
         property: "og:description",
-        content: "Clear direction. Visible progress. No more copium.",
+        content: "Build your dream physique with clear direction, personal programming, and no more copium.",
       },
       { property: "og:type", content: "website" },
     ],
