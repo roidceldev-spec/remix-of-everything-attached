@@ -88,7 +88,15 @@ export function ClientOnboardingChat({
   }, [messages]);
 
   const chooseAnswer = async (answer: string) => {
-    if (!flow || flow.step < 1 || flow.step > 5 || submitting) return;
+    if (submitting) return;
+    if (!flow) {
+      setError("Onboarding is not ready yet. What happened: flow not loaded. Why: local data may still be loading. What to do: wait a moment and try again, or refresh and check device storage.");
+      return;
+    }
+    if (flow.step < 1 || flow.step > 5) {
+      setError(`This answer is not expected at step ${flow.step}. What happened: wrong step. Why: onboarding may have already completed or is waiting for images. What to do: check if you are at the image upload stage or refresh.`);
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -171,7 +179,7 @@ export function ClientOnboardingChat({
       </div>
 
       <footer
-        className="shrink-0 border-t border-border bg-background px-4 pt-3"
+        className="shrink-0 z-10 border-t border-border bg-background px-4 pt-3 pointer-events-auto"
         style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
       >
         <div className="mx-auto w-full max-w-3xl space-y-3">
@@ -200,9 +208,12 @@ export function ClientOnboardingChat({
                   key={option}
                   type="button"
                   variant="outline"
-                  disabled={loading || submitting}
-                  className="min-h-12 h-auto justify-start rounded-xl border-border bg-card px-4 py-3.5 text-left text-[1rem] font-medium leading-6 tracking-[-0.01em] whitespace-normal shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => void chooseAnswer(option)}
+                  disabled={submitting}
+                  className="min-h-12 h-auto touch-manipulation justify-start rounded-xl border-border bg-card px-4 py-3.5 text-left text-[1rem] font-medium leading-6 tracking-[-0.01em] whitespace-normal shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring pointer-events-auto"
+                  onClick={() => {
+                    console.log("Onboarding option clicked:", option, "flow:", flow);
+                    void chooseAnswer(option);
+                  }}
                 >
                   <span className="min-w-0 flex-1 break-words">{option}</span>
                 </Button>
