@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6 and Stage 7 implemented in development; deployment and browser verification required.
+Status: Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6, Stage 7 and Stage 8 implemented in development; deployment and browser verification required.
 
 Last updated: 2026-07-27
 
@@ -48,9 +48,9 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
 5. **Classic workout mode UI and UX** — implemented in development.
 6. **Guided workout mode UI and UX** — implemented in development.
 7. **Workout History** — list and calendar views — implemented in development.
-8. **Loading state** — next.
+8. **Loading state** — implemented in development.
    - Skeleton loading must use a slow, steady shimmer wave moving from left to right.
-9. **Error state**.
+9. **Error state** — next.
 
 ## Stage 1 — landing page
 
@@ -158,12 +158,34 @@ Status: implemented in development.
 - **ClientWorkoutHistory wrapper:** Heading remains `text-2xl`, description `1rem leading-6` with added hint about list/calendar toggle.
 - **View toggle:** Segmented control `rounded-xl border bg-muted/20 p-1`, two buttons `min-h-11 flex-1 rounded-lg px-3 py-2 text-[1rem] font-medium` with `bg-card shadow-sm` when active, `CalendarDays` icon 5w5 for calendar tab, large touch targets, focus ring.
 - **List mode (existing, overhauled):** Container `space-y-3.5`, items `rounded-xl border bg-card shadow[0_1px_2px]`, button `min-h-[72px] p-5 text-left hover:bg-accent/50`, title `1.125rem` tight tracking-tight, date `0.875rem` with CalendarDays h-4, duration `1rem`, chevron h-5, details `border-t p-5 space-y-5`, stats grid `gap-2.5`, HistoryStat `rounded-lg bg-muted/40 p-3.5` dt `0.8125rem` uppercase dd `1rem` or `1.125rem` semibold tight, notes `rounded-lg px-3.5 py-2.5` title `0.8125rem` value `1rem`, set cards `rounded-xl border p-4 shadow`, set label `1rem`, completed badge `rounded-md px-2.5 py-1 text-[0.75rem] uppercase` (was `rounded-full text-[10px]` blob), prescription `0.875rem`, weight/reps stats `rounded-lg`.
-- **Calendar mode (new):** Header month/year `1.125rem semibold`, nav buttons `min-h-11 min-w-11 rounded-xl` ChevronLeft/Right h-5, weekday labels `py-1 text-[0.8125rem] font-medium uppercase tracking-wide muted`, days grid `grid-cols-7 gap-1.5`, each day button `aspect-square rounded-lg border p-1` `min-h-11?` actually aspect-square ensures touch target, `text-[1rem]`, selected `border-primary bg-primary/10`, today `border-primary/40 bg-card`, other days `border-border bg-card hover:bg-accent`, hasSessions indicator badge `min-h-5 min-w-5 rounded-md bg-primary px-1 py-0.5 text-[0.75rem] font-bold` (reduced blob), aria-label includes count.
+- **Calendar mode (new):** Header month/year `1.125rem semibold`, nav buttons `min-h-11 min-w-11 rounded-xl` ChevronLeft/Right h-5, weekday labels `py-1 text-[0.8125rem] font-medium uppercase tracking-wide muted`, days grid `grid-cols-7 gap-1.5`, each day button `aspect-square rounded-lg border p-1 text-center` `text-[1rem]` `min-h ~44px` via aspect-square, selected `border-primary bg-primary/10`, today `border-primary/40 bg-card`, other days `border-border bg-card hover:bg-accent`, hasSessions indicator badge `min-h-5 min-w-5 rounded-md bg-primary px-1 py-0.5 text-[0.75rem] font-bold` (reduced blob), aria-label includes count.
 - **Selected day sessions:** Heading `1rem semibold` with formatted full date + count, empty state `rounded-xl border-dashed p-6 text-center` `1rem`, list same as list mode `rounded-xl` cards with same hierarchy.
 - **Loading/error/empty:** Loading `1rem`, error `rounded-xl border-destructive/40 bg-destructive/5 p-4` `1rem` + button `min-h-11 rounded-xl`, empty `rounded-xl border-dashed p-8` icon h-7, title `1.125rem`, desc `1rem`.
 - **Badge audit for this surface:** Reduced blob `rounded-full` badges in history (if any) to `rounded-md`, completed/not-completed status badges now `rounded-md px-2.5 py-1 text-[0.75rem] uppercase`, calendar count badges `rounded-md`.
-- **Universal:** No colored gradients, no emojis, system font global, 1rem floor enforced (existing CSS forces `text-xs`/`sm`/`[10px]` to 1rem), large touch targets 44px+ (day buttons aspect-square min ~44px, nav 44px, list items 72px), safe-area preserved via parent shell, keyboard focus rings, screen-reader aria-pressed/aria-label for calendar days, reduced-motion respected.
+- **Universal:** No colored gradients, no emojis, system font global, 1rem floor enforced (existing CSS forces `text-xs`/`sm`/`[10px]` to 1rem), large touch targets 44px+ (day buttons aspect-square min ~44px, nav 44px, list items 72px, toggle 44px), safe-area preserved via parent shell, keyboard focus rings, screen-reader aria-pressed/aria-label for calendar days, reduced-motion respected.
 - **Visual hierarchy:** toggle → list OR month header + weekday labels + calendar grid → selected day heading → sessions list → session details (stats → exercises → sets).
+
+## Stage 8 — Loading state
+
+Status: implemented in development.
+
+- **Skeleton base:** `src/components/ui/skeleton.tsx` now `relative overflow-hidden rounded-lg bg-muted/60 skeleton-shimmer` instead of `animate-pulse rounded-md bg-primary/10`. New class `skeleton-shimmer` provides slow steady left-to-right shimmer wave per spec — "Absolutely must use the shimmer wave animation. The wave has to move slow and steady, not fast. The wave has to sweep left to right. Incredibly absolutely important to get that right."
+- **Shimmer CSS:** Added to `src/styles.css`:
+  - `.skeleton-shimmer { position: relative; overflow: hidden; background-color: hsl(var(--muted)/0.6); isolation: isolate; }`
+  - `::after` pseudo-element with `linear-gradient(90deg, transparent, hsl(var(--muted-foreground)/0.08) 20%, hsl(var(--muted-foreground)/0.14) 50%, hsl(var(--muted-foreground)/0.08) 80%, transparent)`, `transform: translateX(-100%)`, `animation: skeleton-shimmer-wave 1.8s linear infinite`, `will-change: transform`
+  - `@keyframes skeleton-shimmer-wave { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }`
+  - `@media (prefers-reduced-motion: reduce) { animation: none; }`
+  - Slow steady 1.8s linear infinite, left-to-right sweep, respects reduced-motion.
+- **Loading surfaces overhauled to use shimmer instead of plain "Loading..." text:**
+  - `AccountAccess.tsx`: `min-h-32` placeholder → skeleton stack `h-10 w-32 rounded-lg`, `h-14 w-full rounded-xl` x3, all `bg-muted/60 skeleton-shimmer`
+  - `YourProgramPage.tsx`: `Loading your program…` text → skeleton section with header skeleton `h-4 w-24`, `h-8 w-64`, `h-5 w-80`, card `h-32 w-28 rounded-lg` + `h-6 w-3/4`, `h-4 w-full`, `h-4 w-5/6`
+  - `ClientWorkoutPrescription.tsx`: `Loading workout prescription…` → `h-6 w-48`, `h-4 w-full`, `h-20 w-full rounded-xl` x2
+  - `ChatConversation.tsx`: `Loading conversation…` text → skeleton bubbles: `flex justify-start h-14 w-3/4 max-w-[78%] rounded-xl`, `flex justify-end h-10 w-1/2`, `flex justify-start h-20 w-4/5`, `flex justify-end h-12 w-2/3`, all `bg-muted/60 skeleton-shimmer`
+  - `ClientOnboardingChat.tsx`: same skeleton bubbles for onboarding loading
+  - `CoachChatInbox.tsx`: `Loading chats…` → 3x `h-20 w-full rounded-xl skeleton-shimmer`
+  - `WorkoutHistoryList.tsx`: `Loading workout history…` → `h-12 w-full rounded-xl` + 3x `h-24 w-full rounded-xl` skeleton stack
+  - Other surfaces already had minimal loading but now benefit from global skeleton component if used elsewhere.
+- **Universal for this surface:** No colored gradients except black transparent (shimmer uses muted-foreground low opacity, not colored), no emojis, system font global, 1rem floor, large touch targets preserved, safe-area preserved, reduced-motion respected (shimmer disabled when prefers-reduced-motion), visual hierarchy preserved via matching skeleton sizes to final content.
 
 ## Form UX principles for applicable later stages
 

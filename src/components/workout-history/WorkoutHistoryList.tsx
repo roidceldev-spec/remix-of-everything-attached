@@ -71,7 +71,14 @@ export function WorkoutHistoryList({ clientId }: { clientId: string }) {
   const calendarDays = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
 
   if (loading) {
-    return <p className="text-[1rem] leading-6 text-muted-foreground">Loading workout history…</p>;
+    return (
+      <div className="space-y-3.5">
+        <div className="h-12 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        <div className="h-24 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        <div className="h-24 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        <div className="h-24 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+      </div>
+    );
   }
 
   if (error) {

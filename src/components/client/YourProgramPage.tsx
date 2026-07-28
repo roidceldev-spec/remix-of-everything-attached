@@ -42,7 +42,27 @@ export function YourProgramPage() {
   );
 
   if (!account || account.role !== "client") return null;
-  if (loading) return <p className="text-sm text-muted-foreground">Loading your program…</p>;
+  if (loading) {
+    return (
+      <section className="space-y-6">
+        <div className="space-y-2">
+          <div className="h-4 w-24 rounded-lg bg-muted/60 skeleton-shimmer" />
+          <div className="h-8 w-64 rounded-xl bg-muted/60 skeleton-shimmer" />
+          <div className="h-5 w-80 rounded-lg bg-muted/60 skeleton-shimmer" />
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex gap-4">
+            <div className="h-32 w-28 rounded-lg bg-muted/60 skeleton-shimmer" />
+            <div className="flex-1 space-y-2">
+              <div className="h-6 w-3/4 rounded-lg bg-muted/60 skeleton-shimmer" />
+              <div className="h-4 w-full rounded-lg bg-muted/60 skeleton-shimmer" />
+              <div className="h-4 w-5/6 rounded-lg bg-muted/60 skeleton-shimmer" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (!program) {
     return (

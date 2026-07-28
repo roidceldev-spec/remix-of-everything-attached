@@ -57,7 +57,11 @@ export function CoachChatInbox({ showHeader = true }: { showHeader?: boolean }) 
       )}
 
       {loading ? (
-        <p className="text-[1rem] leading-6 text-muted-foreground">Loading chats…</p>
+        <div className="space-y-3">
+          <div className="h-20 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+          <div className="h-20 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+          <div className="h-20 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        </div>
       ) : error ? (
         <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4">
           <p className="flex items-start gap-2 text-[1rem] leading-6 text-destructive">

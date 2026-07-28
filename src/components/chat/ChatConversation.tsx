@@ -188,7 +188,12 @@ export function ChatConversation({ clientId }: { clientId: string }) {
 
       <div className="flex-1 space-y-3.5 py-5" aria-live="polite">
         {loading ? (
-          <p className="text-[1rem] leading-6 text-muted-foreground">Loading conversation…</p>
+          <div className="space-y-3.5">
+            <div className="flex justify-start"><div className="h-14 w-3/4 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
+            <div className="flex justify-end"><div className="h-10 w-1/2 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
+            <div className="flex justify-start"><div className="h-20 w-4/5 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
+            <div className="flex justify-end"><div className="h-12 w-2/3 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
+          </div>
         ) : messages.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
             <p className="text-[1.125rem] font-medium leading-tight text-foreground">No messages yet</p>

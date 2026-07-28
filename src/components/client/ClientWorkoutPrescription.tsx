@@ -57,7 +57,17 @@ export function ClientWorkoutPrescription({ workoutId }: { workoutId: string }) 
   if (!account || account.role !== "client") return null;
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading workout prescription…</p>;
+    return (
+      <div className="space-y-4 p-4">
+        <div className="h-6 w-48 rounded-lg bg-muted/60 skeleton-shimmer" />
+        <div className="h-4 w-full rounded-lg bg-muted/60 skeleton-shimmer" />
+        <div className="space-y-3">
+          <div className="h-20 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+          <div className="h-20 w-full rounded-xl bg-muted/60 skeleton-shimmer" />
+        </div>
+      </div>
+    );
+  }
   }
 
   if (!workout || !allowed) {

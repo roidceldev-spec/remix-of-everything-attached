@@ -152,9 +152,10 @@ export function ClientOnboardingChat({
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto w-full max-w-3xl space-y-3.5 px-4 py-5" aria-live="polite">
           {loading && messages.length === 0 ? (
-            <div className="flex items-center gap-2.5 text-[1rem] leading-6 text-muted-foreground">
-              <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
-              Loading conversation…
+            <div className="space-y-3.5">
+              <div className="flex justify-start"><div className="h-14 w-3/4 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
+              <div className="flex justify-end"><div className="h-10 w-1/2 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
+              <div className="flex justify-start"><div className="h-20 w-4/5 max-w-[78%] rounded-xl bg-muted/60 skeleton-shimmer" /></div>
             </div>
           ) : (
             messages.map((message) => (

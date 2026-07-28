@@ -181,6 +181,46 @@
   line-height: 1.45rem !important;
 }
 
+/* Skeleton shimmer - slow steady left-to-right wave, per Stage 8 */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: hsl(var(--muted) / 0.6);
+  isolation: isolate;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--muted-foreground) / 0.08) 20%,
+    hsl(var(--muted-foreground) / 0.14) 50%,
+    hsl(var(--muted-foreground) / 0.08) 80%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer-wave 1.8s linear infinite;
+  will-change: transform;
+}
+
+@keyframes skeleton-shimmer-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+  }
+}
+
 /* Public landing experience */
 .landing-display {
   font-optical-sizing: auto;
