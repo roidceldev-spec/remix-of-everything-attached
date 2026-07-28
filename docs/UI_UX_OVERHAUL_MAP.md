@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1, Stage 2, Stage 3, Stage 4, Stage 5 and Stage 6 implemented in development; deployment and browser verification required.
+Status: Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6 and Stage 7 implemented in development; deployment and browser verification required.
 
 Last updated: 2026-07-27
 
@@ -47,8 +47,8 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
 4. **Onboarding UI and UX** — implemented in development.
 5. **Classic workout mode UI and UX** — implemented in development.
 6. **Guided workout mode UI and UX** — implemented in development.
-7. **Workout History** — list and calendar views — next.
-8. **Loading state**.
+7. **Workout History** — list and calendar views — implemented in development.
+8. **Loading state** — next.
    - Skeleton loading must use a slow, steady shimmer wave moving from left to right.
 9. **Error state**.
 
@@ -142,7 +142,7 @@ Status: implemented in development.
 Status: implemented in development.
 
 - **PreviewHeader reuse:** Same overhaul as Stage 5 — `min-h-11 rounded-xl` exit, timer `rounded-md px-2.5 text-[0.875rem]`, Classic button `min-h-10 rounded-lg text-[1rem]`.
-- **PerformPanel:** Exercise label `0.8125rem` uppercase tracking-wide, title clamp `1.5rem-2rem` tight, notes `rounded-lg bg-muted/40 px-3.5 py-2.5` title `0.8125rem` desc `1rem`, chips `rounded-md px-2.5 py-1 text-[0.75rem] font-medium uppercase` (was `rounded-full text-[10px]` blob), suggested weight range `rounded-lg border bg-muted/30 px-3.5 py-2.5` title `0.8125rem` value `1rem semibold`, coach notes same, card `rounded-lg border bg-card p-4` → `rounded-xl border bg-card p-5`? Actually PerformPanel card `rounded-lg border bg-card p-4` upgraded to `rounded-xl border p-5` with shadow, labels Weight/Reps/Notes `1rem font-medium leading-5`, WeightDoneInput `min-h-12 rounded-xl text-[1rem]` large variant, RepsStepper buttons `h-11 w-11` (already 44px) with icon h-4, input `h-11 text-center text-base` → `min-h-12 text-center text-[1rem]`, textarea `min-h-12 resize-y rounded-xl py-3 text-[1rem] leading-6`, Complete set button `min-h-12 w-full rounded-xl text-[1rem] font-semibold` with Check h-5, Skip set ghost `min-h-11 self-center rounded-xl text-[1rem]` with SkipForward h-5.
+- **PerformPanel:** Exercise label `0.8125rem` uppercase tracking-wide, title clamp `1.5rem-2rem` tight, notes `rounded-lg bg-muted/40 px-3.5 py-2.5` title `0.8125rem` desc `1rem`, chips `rounded-md px-2.5 py-1 text-[0.75rem] font-medium uppercase` (was `rounded-full text-[10px]` blob), suggested weight range `rounded-lg border bg-muted/30 px-3.5 py-2.5` title `0.8125rem` value `1rem semibold`, coach notes same, card `rounded-lg border bg-card p-4` → `rounded-xl border bg-card p-5`? Actually PerformPanel card `rounded-lg border bg-card p-4` upgraded to `rounded-xl border p-5` with shadow, labels Weight/Reps/Notes `1rem font-medium leading-5`, WeightDoneInput `min-h-12 rounded-xl text-[1rem]` large variant, RepsStepper buttons `h-11 w-11` (44px) with icon h-4, input `h-11 text-center text-base` → `min-h-12 text-center text-[1rem]`, textarea `min-h-12 resize-y rounded-xl py-3 text-[1rem] leading-6`, Complete set button `min-h-12 w-full rounded-xl text-[1rem] font-semibold` with Check h-5, Skip set ghost `min-h-11 self-center rounded-xl text-[1rem]` with SkipForward h-5.
 - **RepsStepper:** Label `text-[1rem]`, buttons `h-11 w-11` (44px) already large touch target, input `h-11` → `min-h-12`, text center `text-base` → `text-[1rem]`.
 - **WeightDoneInput:** Already overhauled in Stage 5 to `min-h-12 rounded-xl text-[1rem] pl-[4.75rem] pr-20`, stepper buttons 8w with hover, focus.
 - **RestPanel:** Label `0.8125rem` uppercase (was `text-xs`), timer `text-6xl` kept but with tabular-nums, progress track `h-2.5 w-full max-w-xs overflow-hidden rounded-full` (progress track rounded-full is acceptable, not blob badge), nextInfo `text-sm` → `text-[1rem]`, Skip/Add time buttons `min-h-11 rounded-xl` already? Upgraded minus/plus/skip to `h-11 w-11` is 44px, now ensured `rounded-xl`.
@@ -150,6 +150,20 @@ Status: implemented in development.
 - **Summary / Finish:** Flag buttons `min-h-12 rounded-xl text-[1rem]` with icon 5w5.
 - **Badge audit for this surface:** Same as Stage 5 — set-information badges now `rounded-md` not `rounded-full`, copy/color/spacing preserved.
 - **Universal:** No colored gradients (only black transparent allowed), no emojis, system font global, 1rem floor enforced, large touch targets 44px+ (all primary actions min-h-11/12, stepper buttons 44px), safe-area top+bottom via existing header and sticky composer, keyboard/screen-reader, reduced-motion (existing motion-reduce handling preserved).
+
+## Stage 7 — Workout History
+
+Status: implemented in development.
+
+- **ClientWorkoutHistory wrapper:** Heading remains `text-2xl`, description `1rem leading-6` with added hint about list/calendar toggle.
+- **View toggle:** Segmented control `rounded-xl border bg-muted/20 p-1`, two buttons `min-h-11 flex-1 rounded-lg px-3 py-2 text-[1rem] font-medium` with `bg-card shadow-sm` when active, `CalendarDays` icon 5w5 for calendar tab, large touch targets, focus ring.
+- **List mode (existing, overhauled):** Container `space-y-3.5`, items `rounded-xl border bg-card shadow[0_1px_2px]`, button `min-h-[72px] p-5 text-left hover:bg-accent/50`, title `1.125rem` tight tracking-tight, date `0.875rem` with CalendarDays h-4, duration `1rem`, chevron h-5, details `border-t p-5 space-y-5`, stats grid `gap-2.5`, HistoryStat `rounded-lg bg-muted/40 p-3.5` dt `0.8125rem` uppercase dd `1rem` or `1.125rem` semibold tight, notes `rounded-lg px-3.5 py-2.5` title `0.8125rem` value `1rem`, set cards `rounded-xl border p-4 shadow`, set label `1rem`, completed badge `rounded-md px-2.5 py-1 text-[0.75rem] uppercase` (was `rounded-full text-[10px]` blob), prescription `0.875rem`, weight/reps stats `rounded-lg`.
+- **Calendar mode (new):** Header month/year `1.125rem semibold`, nav buttons `min-h-11 min-w-11 rounded-xl` ChevronLeft/Right h-5, weekday labels `py-1 text-[0.8125rem] font-medium uppercase tracking-wide muted`, days grid `grid-cols-7 gap-1.5`, each day button `aspect-square rounded-lg border p-1` `min-h-11?` actually aspect-square ensures touch target, `text-[1rem]`, selected `border-primary bg-primary/10`, today `border-primary/40 bg-card`, other days `border-border bg-card hover:bg-accent`, hasSessions indicator badge `min-h-5 min-w-5 rounded-md bg-primary px-1 py-0.5 text-[0.75rem] font-bold` (reduced blob), aria-label includes count.
+- **Selected day sessions:** Heading `1rem semibold` with formatted full date + count, empty state `rounded-xl border-dashed p-6 text-center` `1rem`, list same as list mode `rounded-xl` cards with same hierarchy.
+- **Loading/error/empty:** Loading `1rem`, error `rounded-xl border-destructive/40 bg-destructive/5 p-4` `1rem` + button `min-h-11 rounded-xl`, empty `rounded-xl border-dashed p-8` icon h-7, title `1.125rem`, desc `1rem`.
+- **Badge audit for this surface:** Reduced blob `rounded-full` badges in history (if any) to `rounded-md`, completed/not-completed status badges now `rounded-md px-2.5 py-1 text-[0.75rem] uppercase`, calendar count badges `rounded-md`.
+- **Universal:** No colored gradients, no emojis, system font global, 1rem floor enforced (existing CSS forces `text-xs`/`sm`/`[10px]` to 1rem), large touch targets 44px+ (day buttons aspect-square min ~44px, nav 44px, list items 72px), safe-area preserved via parent shell, keyboard focus rings, screen-reader aria-pressed/aria-label for calendar days, reduced-motion respected.
+- **Visual hierarchy:** toggle → list OR month header + weekday labels + calendar grid → selected day heading → sessions list → session details (stats → exercises → sets).
 
 ## Form UX principles for applicable later stages
 
