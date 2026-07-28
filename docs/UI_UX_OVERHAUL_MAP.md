@@ -1,6 +1,6 @@
 # No More Copium — UI and UX Overhaul Map
 
-Status: Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6, Stage 7 and Stage 8 implemented in development; deployment and browser verification required.
+Status: Stage 1, Stage 2, Stage 3, Stage 4, Stage 5, Stage 6, Stage 7, Stage 8 and Stage 9 implemented in development; deployment and browser verification required. UI/UX overhaul complete.
 
 Last updated: 2026-07-27
 
@@ -50,7 +50,7 @@ Each patch focuses on one stage. A stage may be split into smaller patches when 
 7. **Workout History** — list and calendar views — implemented in development.
 8. **Loading state** — implemented in development.
    - Skeleton loading must use a slow, steady shimmer wave moving from left to right.
-9. **Error state** — next.
+9. **Error state** — implemented in development.
 
 ## Stage 1 — landing page
 
@@ -180,12 +180,70 @@ Status: implemented in development.
   - `AccountAccess.tsx`: `min-h-32` placeholder → skeleton stack `h-10 w-32 rounded-lg`, `h-14 w-full rounded-xl` x3, all `bg-muted/60 skeleton-shimmer`
   - `YourProgramPage.tsx`: `Loading your program…` text → skeleton section with header skeleton `h-4 w-24`, `h-8 w-64`, `h-5 w-80`, card `h-32 w-28 rounded-lg` + `h-6 w-3/4`, `h-4 w-full`, `h-4 w-5/6`
   - `ClientWorkoutPrescription.tsx`: `Loading workout prescription…` → `h-6 w-48`, `h-4 w-full`, `h-20 w-full rounded-xl` x2
-  - `ChatConversation.tsx`: `Loading conversation…` text → skeleton bubbles: `flex justify-start h-14 w-3/4 max-w-[78%] rounded-xl`, `flex justify-end h-10 w-1/2`, `flex justify-start h-20 w-4/5`, `flex justify-end h-12 w-2/3`, all `bg-muted/60 skeleton-shimmer`
+  - `ChatConversation.tsx`: `Loading conversation…` → skeleton bubbles: `flex justify-start h-14 w-3/4 max-w-[78%] rounded-xl`, `flex justify-end h-10 w-1/2`, `flex justify-start h-20 w-4/5`, `flex justify-end h-12 w-2/3`
   - `ClientOnboardingChat.tsx`: same skeleton bubbles for onboarding loading
   - `CoachChatInbox.tsx`: `Loading chats…` → 3x `h-20 w-full rounded-xl skeleton-shimmer`
   - `WorkoutHistoryList.tsx`: `Loading workout history…` → `h-12 w-full rounded-xl` + 3x `h-24 w-full rounded-xl` skeleton stack
   - Other surfaces already had minimal loading but now benefit from global skeleton component if used elsewhere.
 - **Universal for this surface:** No colored gradients except black transparent (shimmer uses muted-foreground low opacity, not colored), no emojis, system font global, 1rem floor, large touch targets preserved, safe-area preserved, reduced-motion respected (shimmer disabled when prefers-reduced-motion), visual hierarchy preserved via matching skeleton sizes to final content.
+
+## Stage 9 — Error state
+
+Status: implemented in development. Final stage.
+
+- **Error page overhaul (`src/lib/error-page.ts`):**
+  - Was `Something went wrong... Try again or go home` vague.
+  - Now follows good error UX: What happened: "This page didn't load because something unexpected happened while opening it." Why: "This can happen if the browser's local data is temporarily unavailable or a recent change didn't load correctly. No personal data was sent anywhere — your No More Copium data stays only in this browser." What to do next: "Try refreshing. If it still doesn't load, go back home and open the app again. If the problem continues, clear the browser tab and try again, or use the Export/Import backup in Settings if you have a backup file."
+  - Visual: system font `16px/1.5 ui-sans-serif`, light/dark via CSS variables, card `max-width 32rem`, `rounded 12px`, `border 1px`, `shadow 0 1px 2px`, `min-height 100dvh` with `env(safe-area-inset-*)`, large touch targets `min-height 48px`, buttons `rounded 12px`, `font-semibold`, focus rings, `role=alert aria-live=assertive`, reduced-motion respected.
+
+- **AccountAccess overhauled:**
+  - Inline validation on blur, character counts `name.length/80` and `username.length/30` with live polite aria.
+  - `validateName`: required, min 2, max 80 — error tells what happened why what to do with `AlertCircle` icon.
+  - `validateUsername`: required, 3-30, only lowercase letters numbers spaces, unique check against existing usernames — error says already taken.
+  - Submit disabled until valid (`detailsValid`), with obvious requirement text "Enter a valid name (2–80) and username (3–30, unique) to continue."
+  - Role selection: Coach exists check, disabled with explanation, amber warning box "What to do next: Create the Coach account first..."
+  - Account creation errors: username taken → explains conflict + what to do; storage/quota → explains storage unavailable/full + check device; generic → local storage unavailable + check cookies/storage enabled, data stays only in browser.
+  - Error container `rounded-xl border-destructive/30 bg-destructive/5 px-4 py-3 text-[1rem] leading-5` with icon, `role=alert`, break-words.
+  - Buttons `min-h-12 rounded-xl text-[1rem] font-semibold`, `min-h-11`, badges `rounded-md px-2.5 py-1 text-[0.75rem]`, account list items `min-h-[64px] rounded-xl shadow[0_1px_2px]`, badge corners reduced.
+  - Form UX: reuses known info? No, but forgiving username normalization `trim().toLowerCase().replace(/\s+/g, " ")`, autofill via normal input behavior.
+
+- **LocalPrototypeTools:**
+  - Export error: storage unavailable or entry too large → explains what happened why what to do (free storage, remove large pictures).
+  - Import error: invalid/unsupported/oversized → shows raw reason + what happened (invalid/unsupported) why (corrupted, wrong format, too large) what to do (use valid JSON under 25MB).
+  - Generic import: local storage unavailable or file invalid → explains.
+  - Reset onboarding error: storage unavailable → explains.
+  - Errors now `rounded-xl border-destructive/30 bg-destructive/5 px-4 py-3 text-[1rem]` with icon, `role=alert`.
+  - Buttons `min-h-11 rounded-xl text-[1rem]`, `min-h-12 rounded-xl text-[1rem] font-semibold` for destructive clear.
+  - Header badge `rounded-md px-2.5 py-1 text-[0.75rem]` (was `secondary` blob), description `1rem`, client list `1rem`, reset buttons `min-h-10 rounded-lg`.
+
+- **BroadcastComposer improvements:**
+  - No recipients: now "No recipients selected. What happened: no Clients chosen. Why: a broadcast needs at least one recipient. What to do: choose All Clients or select at least one Client and try again."
+  - Image processing: "The images could not be processed because a file is invalid or too large. What happened: image processing failed. Why: file may be corrupted or over 2.5MB. What to do: try again with smaller valid images (max 6, WebP optimized) and check device storage."
+  - Broadcast send: "The broadcast could not be sent because local storage is unavailable or full. What happened: broadcast failed. Why: browser storage may be blocked or full. What to do: check device storage and try again. Your data stays only in this browser."
+
+- **FinalSequenceEditor improvements:**
+  - Delete last message blocked: now "Cannot delete: The Final Sequence needs at least one message. What happened: delete blocked. Why: sequence must have at least one message. What to do: edit the existing message instead of deleting the last one."
+  - Save failure: "The Final Sequence could not be saved because local storage is unavailable or full. What happened: save failed. Why: browser storage may be blocked or full. What to do: check device storage and try again."
+  - Error container: was `rounded-lg px-3 py-2 text-sm` → now `rounded-xl border-destructive/40 bg-destructive/5 px-4 py-3 text-[1rem] leading-5`.
+
+- **Existing chat/onboarding/history errors already overhauled in previous stages to tell what happened why what to do next (local storage unavailable/full, check device storage, try again, etc.) and use inline placement (`rounded-xl border-destructive/40 bg-destructive/5 px-4 py-3 text-[1rem]`) instead of bare `text-sm text-destructive`.**
+
+- **Placement audit:**
+  - Inline: default for field validation (AccountAccess name/username), form errors (account creation), broadcast recipient errors, final sequence validation, chat send failures, onboarding answer failures, workout history load failures — all use `rounded-xl border-destructive` inline near failed action.
+  - Modal: used only for destructive confirmations (clear all data, reset onboarding, delete message, approve join request) where user cannot continue without addressing issue — Confirm via `window.confirm` with explicit "This cannot be undone" + suggestion to export backup first.
+  - Toast: not used in local prototype because safe-to-miss messages are not present; future Cloud may use toast only when safe to miss.
+
+- **No raw backend errors exposed:** All `nextError.message` that could contain raw storage or JSON errors are now wrapped with friendly explanation + what/why/next, never showing stack trace or infrastructure details. `console.error` remains for dev debugging but UI shows friendly copy.
+
+- **No silent failures:** Every catch now sets error state with user-visible `role=alert`, plus existing `aria-live=polite` for message lists, and loading states always have skeletons, not silent empty.
+
+- **Payment errors (deferred):** Payment handling remains deferred per docs until verified merchant provider selected. Spec says payment errors must make clear whether payment completed, whether charged, recovery action — this will be implemented in that future stage with provider-generated checkout.
+
+- **Universal for final audit:** No colored gradients (only black transparent allowed, error uses `destructive/5` not colored gradient), no emojis, system font global, `1rem` floor enforced (existing CSS forces `text-xs`/`sm`/`[10px]` to `1rem`), large touch targets 44px+ (`min-h-11`/`min-h-12`, buttons `rounded-xl`), safe-area `env(safe-area-inset-*)`, keyboard focus rings (`focus-visible:ring-2`), screen-reader (`role=alert`, `aria-invalid`, `aria-describedby`, `aria-live`), reduced-motion respected.
+
+- **Visual hierarchy for errors:** Error containers placed directly above/below failed action, not competing with primary actions, with icon `AlertCircle h-5 w-5`, break-words, sufficient padding.
+
+- **Quality:** No unresponsive controls, no silent failures, no layout clipping, no accidental navigation, no raw errors, no emojis/gradients. Final whole-app badge audit done: all previously identified `rounded-full` blob badges now `rounded-md` (Client Preview, Coach Mode, set-information, inbox unread, chat button, history status, account role badges).
 
 ## Form UX principles for applicable later stages
 

@@ -83,7 +83,7 @@ export function BroadcastComposer() {
       ]);
     } catch (nextError) {
       setError(
-        nextError instanceof Error ? nextError.message : "The images could not be processed.",
+        nextError instanceof Error ? nextError.message : "The images could not be processed because a file is invalid or too large. What happened: image processing failed. Why: file may be corrupted or over 2.5MB. What to do: try again with smaller valid images (max 6, WebP optimized) and check device storage.",
       );
     } finally {
       setProcessing(false);
@@ -96,7 +96,7 @@ export function BroadcastComposer() {
   const send = async () => {
     if (!account || account.role !== "coach" || sending) return;
     if (!recipients.length) {
-      setError("Choose at least one Client.");
+      setError("No recipients selected. What happened: no Clients chosen. Why: a broadcast needs at least one recipient. What to do: choose All Clients or select at least one Client and try again.");
       return;
     }
     if (

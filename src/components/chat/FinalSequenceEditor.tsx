@@ -78,7 +78,7 @@ export function FinalSequenceEditor() {
       setError(null);
     } catch (nextError) {
       setError(
-        nextError instanceof Error ? nextError.message : "The Final Sequence could not be saved.",
+        nextError instanceof Error ? nextError.message : "The Final Sequence could not be saved because local storage is unavailable or full. What happened: save failed. Why: browser storage may be blocked or full. What to do: check device storage and try again.",
       );
     }
   };
@@ -99,7 +99,7 @@ export function FinalSequenceEditor() {
 
   const deleteMessage = (messageId: string) => {
     if (messages.length === 1) {
-      setError("The Final Sequence needs at least one message.");
+      setError("Cannot delete: The Final Sequence needs at least one message. What happened: delete blocked. Why: sequence must have at least one message. What to do: edit the existing message instead of deleting the last one.");
       return;
     }
     if (!window.confirm("Delete this Final Sequence message?")) return;
@@ -127,7 +127,7 @@ export function FinalSequenceEditor() {
       {(error || validationError) && (
         <p
           role="alert"
-          className="rounded-lg border border-destructive/40 px-3 py-2 text-sm text-destructive"
+          className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-[1rem] leading-5 text-destructive"
         >
           {error ?? validationError}
         </p>
