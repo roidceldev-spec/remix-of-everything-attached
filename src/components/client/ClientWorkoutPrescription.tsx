@@ -68,7 +68,6 @@ export function ClientWorkoutPrescription({ workoutId }: { workoutId: string }) 
       </div>
     );
   }
-  }
 
   if (!workout || !allowed) {
     return (
