@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, Outlet, useNavigate, useRouterState, useRouter } from "@tanstack/react-router";
 import { ClipboardList, History, LayoutDashboard, type LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
@@ -23,6 +23,8 @@ export function ClientShell() {
   const navigate = useNavigate();
   const { account, loading } = useAccount();
 
+  const router = useRouter();
+
   useEffect(() => {
     if (loading) return;
     if (account?.role === "client" && !account.onboardingCompletedAt) {
@@ -31,6 +33,27 @@ export function ClientShell() {
       void navigate({ to: "/access", replace: true });
     }
   }, [account, loading, navigate]);
+
+  useEffect(() => {
+    if (loading || account?.role !== "client" || !account.onboardingCompletedAt) return;
+    const preload = async () => {
+      try {
+        const { loadPrograms } = await import("@/lib/coach-programs");
+        loadPrograms();
+        await router.preloadRoute({ to: "/client/program" }).catch(() => {});
+      } catch {}
+      try {
+        await router.preloadRoute({ to: "/client/workout-history" }).catch(() => {});
+        await router.preloadRoute({ to: "/client/chat" }).catch(() => {});
+      } catch {}
+      try {
+        const { cacheStaticUI } = await import("@/lib/static-cache");
+        cacheStaticUI();
+      } catch {}
+    };
+    const id = window.setTimeout(() => void preload(), 350);
+    return () => window.clearTimeout(id);
+  }, [account, loading, router]);
 
   if (loading || account?.role !== "client" || !account.onboardingCompletedAt) {
     return <div className="min-h-[100dvh] bg-background" />;

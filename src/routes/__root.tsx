@@ -45,29 +45,49 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4 py-6" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))", paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+      <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] text-left">
+        <h1 className="text-[1.375rem] font-semibold leading-tight tracking-tight text-foreground">
           This page didn't load
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+        <p className="mt-3 text-[1rem] font-medium leading-6 text-foreground">
+          What happened: This page didn't load because something unexpected happened while opening it.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <p className="mt-2 text-[1rem] leading-6 text-muted-foreground">
+          Why: This can happen if the browser's local data is temporarily unavailable, a recent change didn't load correctly, or device storage is full. Your No More Copium data stays only in this browser — nothing was sent.
+        </p>
+        <p className="mt-2 text-[1rem] leading-6 text-muted-foreground">
+          What to do next: Try again first. If it still doesn't load, go to your account picker. If that still fails, go back to the landing page and open the app again. If the problem continues, clear the site data from browser settings or use Export/Import backup in Settings if you have a backup.
+        </p>
+        <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
           <button
             onClick={() => {
-              router.invalidate();
+              try {
+                router.invalidate();
+              } catch {}
               reset();
+              // Fallback hard reload if TanStack reset doesn't recover
+              setTimeout(() => {
+                if (typeof window !== "undefined" && document.visibilityState === "visible") {
+                  window.location.reload();
+                }
+              }, 250);
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-[1rem] font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Try again
           </button>
           <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            href="/access"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-[1rem] font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Go home
+            Go to account picker
+          </a>
+          <a
+            href="/"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-input bg-background px-5 py-2.5 text-[1rem] font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:col-span-2"
+          >
+            Go to landing page
           </a>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, Outlet, useNavigate, useRouterState, useRouter } from "@tanstack/react-router";
 import { LayoutDashboard, Library, ListChecks, MessageCircle } from "lucide-react";
 import { useEffect, type ComponentType } from "react";
 import { useAccount } from "@/components/account/AccountProvider";
@@ -24,11 +24,49 @@ export function CoachShell() {
   const navigate = useNavigate();
   const { account, loading } = useAccount();
 
+  const router = useRouter();
+
   useEffect(() => {
     if (!loading && account?.role !== "coach") {
       void navigate({ to: "/access", replace: true });
     }
   }, [account, loading, navigate]);
+
+  useEffect(() => {
+    if (loading || account?.role !== "coach") return;
+    // Preload in priority order after dashboard finishes, to eliminate bottom-nav delay
+    const preload = async () => {
+      try {
+        // Priority 1: Programs (user sees after dashboard)
+        const { loadPrograms } = await import("@/lib/coach-programs");
+        loadPrograms();
+        // Preload route for fast navigation
+        await router.preloadRoute({ to: "/coach/programs" }).catch(() => {});
+      } catch {}
+      try {
+        // Priority 2: Library (exercises + workouts)
+        const { loadExercises } = await import("@/lib/coach-exercises");
+        const { loadWorkouts } = await import("@/lib/coach-workouts");
+        loadExercises();
+        loadWorkouts();
+        await router.preloadRoute({ to: "/coach/library" }).catch(() => {});
+        await router.preloadRoute({ to: "/coach/library/exercises" }).catch(() => {});
+        await router.preloadRoute({ to: "/coach/library/workouts" }).catch(() => {});
+      } catch {}
+      try {
+        // Priority 3: Messaging / Chat
+        await router.preloadRoute({ to: "/coach/chat" }).catch(() => {});
+      } catch {}
+      // Cache static UI text that never changes
+      try {
+        const { cacheStaticUI } = await import("@/lib/static-cache");
+        cacheStaticUI();
+      } catch {}
+    };
+    // Start after 300ms so dashboard paint is not blocked, then stagger
+    const id = window.setTimeout(() => void preload(), 300);
+    return () => window.clearTimeout(id);
+  }, [account, loading, router]);
   const isDashboardActive =
     pathname === "/coach/dashboard" || pathname.startsWith("/coach/clients/");
   const isProgramsActive =
