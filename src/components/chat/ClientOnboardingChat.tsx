@@ -73,7 +73,7 @@ export function ClientOnboardingChat({
     const threadId = flow.threadId;
     const onChatChanged = () => {
       void loadMessages(threadId);
-      void markChatRead(account.id, account.id).then(refreshUnread).catch(console.error);
+      void refreshUnread().catch(console.error);
     };
     window.addEventListener(LOCAL_CHAT_CHANGED_EVENT, onChatChanged);
     window.addEventListener("storage", onChatChanged);
