@@ -81,7 +81,7 @@ export function ChatConversation({ clientId }: { clientId: string }) {
     if (!threadId || !account) return;
     const onChatChanged = () => {
       void loadMessages(threadId);
-      void markChatRead(account.id, clientId).then(refreshUnread).catch(console.error);
+      void refreshUnread().catch(console.error);
     };
     window.addEventListener(LOCAL_CHAT_CHANGED_EVENT, onChatChanged);
     window.addEventListener("storage", onChatChanged);
