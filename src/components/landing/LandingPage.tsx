@@ -6,13 +6,13 @@ import { RotatingHeadline } from "./RotatingHeadline";
 import { TransformationSection } from "./TransformationSection";
 import { LANDING_TESTIMONIALS } from "./landing-content";
 
-const SECTION_COUNT = 4;
+const SECTION_COUNT = 7;
 
 export function LandingPage() {
   const [transformationComplete, setTransformationComplete] = useState(false);
   const canNavigate = useCallback(
     (fromIndex: number, toIndex: number) =>
-      !(fromIndex === 1 && toIndex === 2 && !transformationComplete),
+      !(fromIndex === 4 && toIndex === 5 && !transformationComplete),
     [transformationComplete],
   );
   const pager = useVerticalSectionPager(SECTION_COUNT, canNavigate);
@@ -35,17 +35,93 @@ export function LandingPage() {
         aria-label={`No More Copium landing page, section ${pager.index + 1} of ${SECTION_COUNT}`}
       >
         <div ref={pager.trackRef} className="h-full will-change-transform">
-          <HeroSection active={pager.index === 0} onContinue={() => pager.goTo(1)} />
-          <TransformationSection
+          <IntroTestimonialSection
+            testimonial={LANDING_TESTIMONIALS[0]}
+            align="right"
+            active={pager.index === 0}
+            onContinue={() => pager.goTo(1)}
+          />
+          <IntroTestimonialSection
+            testimonial={LANDING_TESTIMONIALS[1]}
+            align="left"
             active={pager.index === 1}
-            onTransformed={() => setTransformationComplete(true)}
             onContinue={() => pager.goTo(2)}
           />
-          <HandsSection active={pager.index === 2} onContinue={() => pager.goTo(3)} />
-          <ValueSection active={pager.index === 3} />
+          <IntroTestimonialSection
+            testimonial={LANDING_TESTIMONIALS[2]}
+            align="right"
+            active={pager.index === 2}
+            onContinue={() => pager.goTo(3)}
+          />
+          <HeroSection active={pager.index === 3} onContinue={() => pager.goTo(4)} />
+          <TransformationSection
+            active={pager.index === 4}
+            onTransformed={() => setTransformationComplete(true)}
+            onContinue={() => pager.goTo(5)}
+          />
+          <HandsSection active={pager.index === 5} onContinue={() => pager.goTo(6)} />
+          <ValueSection active={pager.index === 6} />
         </div>
       </main>
     </div>
+  );
+}
+
+function IntroTestimonialSection({
+  testimonial,
+  align,
+  active,
+  onContinue,
+}: {
+  testimonial: { quote: string; name: string };
+  align: "left" | "right";
+  active: boolean;
+  onContinue: () => void;
+}) {
+  return (
+    <section className="relative h-full min-h-0 overflow-hidden bg-black" aria-hidden={!active}>
+      <div className="absolute inset-0 bg-[#080808]" />
+      <div className="absolute inset-0 flex flex-col">
+        <div className="flex flex-1 items-center justify-center px-6 sm:px-8">
+          <div
+            className={`w-full max-w-2xl ${active ? "testimonial-blur-in" : "opacity-0"}`}
+            style={{ willChange: "filter, opacity, transform" }}
+          >
+            <blockquote className="relative">
+              <p className="text-[clamp(1.75rem,7vw,3.25rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-white">
+                <span className="text-red-500" aria-hidden="true">
+                  “
+                </span>
+                {testimonial.quote}
+                <span className="text-red-500" aria-hidden="true">
+                  ”
+                </span>
+              </p>
+              <footer
+                className={`mt-6 flex ${align === "right" ? "justify-end" : "justify-start"}`}
+              >
+                <cite className="not-italic text-[clamp(1rem,3.5vw,1.25rem)] font-semibold leading-[1.15] tracking-[-0.01em] text-red-500">
+                  — {testimonial.name}
+                </cite>
+              </footer>
+            </blockquote>
+          </div>
+        </div>
+
+        <div className="flex h-[22%] shrink-0 items-center justify-center pb-[env(safe-area-inset-bottom)]">
+          <button
+            type="button"
+            onClick={onContinue}
+            tabIndex={active ? 0 : -1}
+            className="group flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
+            aria-label="Continue to the next section"
+          >
+            <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em]">Swipe down</span>
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -63,7 +139,9 @@ function HeroSection({ active, onContinue }: { active: boolean; onContinue: () =
           {LANDING_TESTIMONIALS.map((testimonial) => (
             <blockquote key={testimonial.name} className="border-l-2 border-red-500/80 pl-3">
               <p className="text-[clamp(1rem,3.8vw,1.08rem)] font-medium leading-[1.15] tracking-[-0.015em] text-white">
-                “{testimonial.quote}”
+                <span className="text-red-500">“</span>
+                {testimonial.quote}
+                <span className="text-red-500">”</span>
               </p>
               <footer className="mt-1 font-semibold leading-[1.15] text-red-500">
                 <cite className="not-italic">— {testimonial.name}</cite>
@@ -109,7 +187,7 @@ function HandsSection({ active, onContinue }: { active: boolean; onContinue: () 
       <div className="absolute inset-x-0 top-0 h-[64%] overflow-hidden bg-black">
         <img
           src="/landing/hands-comparison.webp"
-          alt="Before and after comparison of hand and wrist development"
+          alt="Before and after comparison of hand and wrist development from 15 cm to 17 cm"
           loading="eager"
           decoding="async"
           draggable={false}
@@ -183,8 +261,8 @@ function ValueSection({ active }: { active: boolean }) {
       aria-hidden={!active}
     >
       <div className="mx-auto flex min-h-full w-full max-w-xl flex-col pb-[calc(1.4rem+env(safe-area-inset-bottom))] pt-[clamp(0.9rem,2.6dvh,1.8rem)]">
-        <h2 className="text-[clamp(2rem,9vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-white">
-          All this for just <span className="text-red-500">$29/month</span>
+        <h2 className="text-[clamp(2rem,9vw,4.5rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
+          All this for just <span className="mt-1 block text-red-500"> $29/month</span>
         </h2>
 
         <ul className="mt-[clamp(0.75rem,2dvh,1.3rem)] grid gap-[clamp(0.45rem,1.1dvh,0.7rem)]">
@@ -208,9 +286,10 @@ function ValueSection({ active }: { active: boolean }) {
                   <Link
                     to="/access"
                     tabIndex={active ? 0 : -1}
-                    className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-black/10 bg-white px-6 font-semibold text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f8f8f8] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-6 font-semibold text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#f8f8f8] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
-                    Continue
+                    <GoogleIcon />
+                    Continue with Google
                   </Link>
                 </li>
               )}
@@ -219,6 +298,29 @@ function ValueSection({ active }: { active: boolean }) {
         </ul>
       </div>
     </section>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="currentColor"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="currentColor"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      />
+      <path
+        fill="currentColor"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      />
+    </svg>
   );
 }
 

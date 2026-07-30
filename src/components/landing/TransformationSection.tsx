@@ -70,12 +70,12 @@ export function TransformationSection({
       <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[61%] z-[2] grid grid-rows-[24fr_44fr_32fr] px-5">
         <div className="flex min-h-0 items-center justify-center text-center" aria-live="polite">
           {phase === "after" ? (
-            <p className="font-medium leading-tight text-red-500">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] leading-tight text-red-500">
               <span className="block">3 months later</span>
               <span className="block">(All natural)</span>
             </p>
           ) : (
-            <p className="font-medium text-red-500">Before</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-red-500">Before</p>
           )}
         </div>
 

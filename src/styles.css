@@ -374,3 +374,32 @@
     animation: none;
   }
 }
+
+/* Testimonial intro pages - blur entrance */
+.testimonial-blur-in {
+  animation: testimonial-blur-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes testimonial-blur-in {
+  from {
+    filter: blur(12px);
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-blur-in {
+    animation: testimonial-fade-in 300ms ease-out both;
+  }
+}
+
+@keyframes testimonial-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
