@@ -36,24 +36,31 @@ export function ClientShell() {
 
   useEffect(() => {
     if (loading || account?.role !== "client" || !account.onboardingCompletedAt) return;
-    const preload = async () => {
+    const id = window.setTimeout(async () => {
       try {
-        const { loadPrograms } = await import("@/lib/coach-programs");
-        loadPrograms();
-        await router.preloadRoute({ to: "/client/program" }).catch(() => {});
+        const { preloadClientRoutes, warmStaticCache } = await import("@/lib/route-preloader");
+        await warmStaticCache();
+        await preloadClientRoutes(router);
       } catch {}
       try {
-        await router.preloadRoute({ to: "/client/workout-history" }).catch(() => {});
-        await router.preloadRoute({ to: "/client/chat" }).catch(() => {});
+        // From any client page, preload all other client bottom-nav destinations
+        const allClientDestinations = [
+          "/client/dashboard",
+          "/client/program",
+          "/client/workout-history",
+          "/client/chat",
+          "/client/progress-pictures",
+        ] as const;
+        for (const to of allClientDestinations) {
+          if (to !== pathname) {
+            // @ts-ignore - some routes have params but preload without params is okay for code-split
+            await router.preloadRoute({ to }).catch(() => {});
+          }
+        }
       } catch {}
-      try {
-        const { cacheStaticUI } = await import("@/lib/static-cache");
-        cacheStaticUI();
-      } catch {}
-    };
-    const id = window.setTimeout(() => void preload(), 350);
+    }, 350);
     return () => window.clearTimeout(id);
-  }, [account, loading, router]);
+  }, [account, loading, router, pathname]);
 
   if (loading || account?.role !== "client" || !account.onboardingCompletedAt) {
     return <div className="min-h-[100dvh] bg-background" />;
