@@ -34,39 +34,32 @@ export function CoachShell() {
 
   useEffect(() => {
     if (loading || account?.role !== "coach") return;
-    // Preload in priority order after dashboard finishes, to eliminate bottom-nav delay
-    const preload = async () => {
+    // Deep preloading: as soon as dashboard finishes, start loading every other page
+    // in priority order, so there is no delay when user clicks bottom nav.
+    // Staggered with sleep to avoid blocking main thread / overflow.
+    const id = window.setTimeout(async () => {
       try {
-        // Priority 1: Programs (user sees after dashboard)
-        const { loadPrograms } = await import("@/lib/coach-programs");
-        loadPrograms();
-        // Preload route for fast navigation
-        await router.preloadRoute({ to: "/coach/programs" }).catch(() => {});
+        const { preloadCoachRoutes, warmStaticCache } = await import("@/lib/route-preloader");
+        await warmStaticCache();
+        await preloadCoachRoutes(router);
       } catch {}
+      // Also preload from every page: when user is on any coach page, preload its siblings
       try {
-        // Priority 2: Library (exercises + workouts)
-        const { loadExercises } = await import("@/lib/coach-exercises");
-        const { loadWorkouts } = await import("@/lib/coach-workouts");
-        loadExercises();
-        loadWorkouts();
-        await router.preloadRoute({ to: "/coach/library" }).catch(() => {});
-        await router.preloadRoute({ to: "/coach/library/exercises" }).catch(() => {});
-        await router.preloadRoute({ to: "/coach/library/workouts" }).catch(() => {});
+        const allCoachDestinations = [
+          "/coach/dashboard",
+          "/coach/programs",
+          "/coach/library",
+          "/coach/chat",
+        ] as const;
+        for (const to of allCoachDestinations) {
+          if (to !== pathname) {
+            await router.preloadRoute({ to }).catch(() => {});
+          }
+        }
       } catch {}
-      try {
-        // Priority 3: Messaging / Chat
-        await router.preloadRoute({ to: "/coach/chat" }).catch(() => {});
-      } catch {}
-      // Cache static UI text that never changes
-      try {
-        const { cacheStaticUI } = await import("@/lib/static-cache");
-        cacheStaticUI();
-      } catch {}
-    };
-    // Start after 300ms so dashboard paint is not blocked, then stagger
-    const id = window.setTimeout(() => void preload(), 300);
+    }, 300);
     return () => window.clearTimeout(id);
-  }, [account, loading, router]);
+  }, [account, loading, router, pathname]);
   const isDashboardActive =
     pathname === "/coach/dashboard" || pathname.startsWith("/coach/clients/");
   const isProgramsActive =
