@@ -43,7 +43,7 @@ export function LandingPage() {
           />
           <IntroTestimonialSection
             testimonial={LANDING_TESTIMONIALS[1]}
-            align="left"
+            align="right"
             active={pager.index === 1}
             onContinue={() => pager.goTo(2)}
           />
@@ -186,7 +186,7 @@ function HandsSection({ active, onContinue }: { active: boolean; onContinue: () 
     <section className="relative h-full min-h-0 overflow-hidden bg-black" aria-hidden={!active}>
       <div className="absolute inset-x-0 top-0 h-[64%] overflow-hidden bg-black">
         <img
-          src="/landing/hands-comparison.webp"
+          src="/landing/hands-comparison.webp?v=3"
           alt="Before and after comparison of hand and wrist development from 15 cm to 17 cm"
           loading="eager"
           decoding="async"

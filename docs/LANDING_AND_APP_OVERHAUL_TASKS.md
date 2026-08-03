@@ -157,3 +157,47 @@ Each batch will be its own patch with dry-run, SHA, Lovable instructions.
 2. Confirm Continue with Google is visual only or real OAuth.
 3. Start Batch 1 implementation.
 
+
+---
+
+## New Walkthrough 2026-08-03 After Dark Mode — Additional Bugs & Requests
+
+**User in coach dashboard:**
+- Below join requests, can see client who sent image (himself from client account). Clicks, taken to chat, can see image, top header behind transparent blurry — loves liquid glass effect.
+- **BUG:** No option to approve this client so he can log back into that client account and use client experience. Expected Approve button in chat or dashboard join requests detail.
+
+**Landing pages — 7 pages now (3 intro testimonials + original 4):**
+
+- Page 1 (first intro testimonial): Good.
+- Page 2 (second intro testimonial): Author name is to the left, supposed to be to the right. Fix name positioning.
+- Page 3: Good.
+- Page 4 (original first page with 3 testimonials together): While on fourth page, can see little bit of top part of next page (fifth page) — sliver visible. Should not see any part of next page.
+- Page 5 (Transformation Before/After): Previously fixed Before font and 3 months later font to swipe down font — verify.
+- Page 6 (Hands comparison): Top image replacement to new 15cm→17cm image not visible — cache issue or binary patch not applied via `patch -p1`. Need to ensure new image is deployed correctly. Image is `20260730_010408.jpg` optimized to WebP 34KB, should show 15cm left, 17cm right, red text.
+- Page 7 (Value section with Continue with Google): Scrollable page. Desired behavior:
+  - If scroll all the way to bottom of last page (Continue with Google button visible), then scroll back up to top, there should be NO way to be able to scroll up to previous page as well in same swipe. If you scroll back up to top and let go, then if you swipe again, then you're allowed to go back to previous page.
+  - If screen is so big that whole last page is already showing (no scroll needed), then swipe up should directly go to previous page (since no scroll to do).
+  - This is nested scroll ownership logic: scrollable last page should consume swipe until reaching top, then require second swipe to change page.
+
+**Batch division for these new issues:**
+
+**Batch 6 — Landing Batch 3 fixes:**
+- Fix Page 2 author name position: left → right (align="right" was intended but currently left). Make all intro testimonial authors right-aligned per user preference.
+- Fix Page 4 sliver: Ensure vertical pager track transform is exactly 100% per section, no partial visibility. Check `useVerticalSectionPager` hook — maybe `will-change-transform` and `translate3d` causing subpixel gap? Ensure each section `h-full` and `overflow-hidden`, track height exactly `SECTION_COUNT * 100%`? Also ensure `HandsSection` top image h-[64%] not causing overflow.
+- Fix hands image cache: Binary patch via `patch -p1` does not handle binary. Need to provide image as separate file upload instruction for Lovable, or encode as base64 and decode via script, or use `git apply --binary`. For Lovable patch applier, recommend uploading file manually via Lovable file manager to `public/landing/hands-comparison.webp` or via our patch that creates file from base64.
+
+**Batch 7 — Landing Batch 4 scroll behavior:**
+- Implement proper scroll ownership for last page ValueSection which is `overflow-y-auto`: 
+  - When at bottom and user swipes down? Actually requirement is for scrolling up.
+  - Logic: If ValueSection is scrollable and not at top, consume swipe to scroll inside section, not change page.
+  - If ValueSection is at top (scrollTop === 0) and user swipes up (trying to go to previous page), require that previous swipe had already reached top and let go — i.e., need two swipes: first swipe reaches top, second swipe goes to previous page. If ValueSection is not scrollable at all (scrollHeight <= clientHeight), then single swipe up goes to previous page.
+  - This requires tracking scroll position and last scroll direction in `useVerticalSectionPager` or in ValueSection itself.
+  - Also need to handle case where screen is big and whole last page visible: then scrollHeight <= clientHeight, so swipe up directly goes to previous page.
+
+**Batch 8 — Coach Dashboard Approve Bug:**
+- In coach dashboard below join requests, client with image visible, click to chat, can see image, header liquid glass effect loved, but no Approve option.
+- Expected: Approve button should be visible in chat when joinRequestPending, and in dashboard JoinRequestsSection.
+- Currently ChatConversation has Approve button when joinRequestPending, but maybe condition fails because joinRequest status is pending but account.role is client? No, in coach mode account.role is coach, joinRequestPending should be true if status pending. Check fetchJoinRequest logic.
+- Also need to ensure Approve button is visible in chat header or in pending banner, not hidden behind transparent header.
+- Fix: Ensure JoinRequestsSection shows pending count and approve button, and ChatConversation shows Approve Client button in pending banner, with large touch targets, rounded-xl, text-[1rem], etc.
+

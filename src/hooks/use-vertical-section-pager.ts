@@ -40,9 +40,11 @@ export function useVerticalSectionPager(
   );
 
   const setPosition = useCallback((position: number) => {
-    positionRef.current = position;
+    // Round to avoid subpixel sliver visible between sections
+    const rounded = Math.round(position);
+    positionRef.current = rounded;
     if (trackRef.current) {
-      trackRef.current.style.transform = `translate3d(0, ${position}px, 0)`;
+      trackRef.current.style.transform = `translate3d(0, ${rounded}px, 0)`;
     }
   }, []);
 
