@@ -178,6 +178,48 @@ export function useVerticalSectionPager(
     if (!drag || drag.pointerId !== event.pointerId) return;
     dragRef.current = null;
     const delta = event.clientY - drag.startY;
+    const isLastPage = indexRef.current === sectionCount - 1;
+    const isFirstPage = indexRef.current === 0;
+
+    // Last page scrollable handling: two-swipe to go back
+    if (drag.scrollElement) {
+      const maxScroll = Math.max(0, drag.scrollElement.scrollHeight - drag.scrollElement.clientHeight);
+      const noScroll = maxScroll <= LANDING_SCROLL_EDGE_EPSILON;
+      // If no scroll needed (big screen), single swipe up (drag down) should go to previous
+      if (noScroll) {
+        if (delta > 20 || (delta > 0 && releaseVelocity(drag.history) > 200)) {
+          if (!isFirstPage) {
+            goTo(indexRef.current - 1, releaseVelocity(drag.history));
+            return;
+          }
+        }
+        // Drag up on last page (trying to go next) should stay with rubberband
+        if (isLastPage && delta < 0) {
+          goTo(indexRef.current);
+          return;
+        }
+      } else {
+        // Scrollable last page: first swipe from bottom to top should stay, second swipe from top should go previous
+        if (drag.startScrollTop > LANDING_SCROLL_EDGE_EPSILON) {
+          // Started not at top -> always stay on current, just scroll inside
+          goTo(indexRef.current);
+          return;
+        }
+        // Started at top
+        if (delta < 0) {
+          // Drag up trying to go next from last page -> stay (rubberband)
+          if (isLastPage) {
+            goTo(indexRef.current);
+            return;
+          }
+        }
+        // For previous page, require smaller threshold on last page for easier back navigation
+        if (isLastPage && delta > 12) {
+          goTo(indexRef.current - 1, releaseVelocity(drag.history));
+          return;
+        }
+      }
+    }
 
     if (drag.scrollElement && (drag.startScrollTop > LANDING_SCROLL_EDGE_EPSILON || delta < 0)) {
       goTo(indexRef.current);
