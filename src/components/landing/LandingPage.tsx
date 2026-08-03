@@ -186,7 +186,7 @@ function HandsSection({ active, onContinue }: { active: boolean; onContinue: () 
     <section className="relative h-full min-h-0 overflow-hidden bg-black" aria-hidden={!active}>
       <div className="absolute inset-x-0 top-0 h-[64%] overflow-hidden bg-black">
         <img
-          src="/landing/hands-comparison.webp?v=3"
+          src="/landing/hands-comparison.webp?v=4"
           alt="Before and after comparison of hand and wrist development from 15 cm to 17 cm"
           loading="eager"
           decoding="async"
