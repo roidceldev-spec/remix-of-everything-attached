@@ -7,7 +7,7 @@
  */
 
 type RouterLike = {
-  preloadRoute: (opts: { to: string; params?: Record<string, string> }) => Promise<void>;
+  preloadRoute: (opts: { to: string; params?: Record<string, string> }) => Promise<unknown>;
 };
 
 const COACH_ROUTES_PRIORITY = [
