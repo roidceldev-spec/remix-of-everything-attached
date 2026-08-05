@@ -89,18 +89,18 @@ function IntroTestimonialSection({
           >
             <blockquote className="relative">
               <p className="text-[clamp(1.75rem,7vw,3.25rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-white">
-                <span className="text-red-500" aria-hidden="true">
+                <span className="text-[#E50910]" aria-hidden="true">
                   “
                 </span>
                 {testimonial.quote}
-                <span className="text-red-500" aria-hidden="true">
+                <span className="text-[#E50910]" aria-hidden="true">
                   ”
                 </span>
               </p>
               <footer
                 className={`mt-6 flex ${align === "right" ? "justify-end" : "justify-start"}`}
               >
-                <cite className="not-italic text-[clamp(1rem,3.5vw,1.25rem)] font-semibold leading-[1.15] tracking-[-0.01em] text-red-500">
+                <cite className="not-italic text-[clamp(1rem,3.5vw,1.25rem)] font-semibold leading-[1.15] tracking-[-0.01em] text-[#E50910]">
                   — {testimonial.name}
                 </cite>
               </footer>
@@ -113,7 +113,7 @@ function IntroTestimonialSection({
             type="button"
             onClick={onContinue}
             tabIndex={active ? 0 : -1}
-            className="group flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
+            className="group flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E50910] active:scale-[0.97]"
             aria-label="Continue to the next section"
           >
             <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
@@ -137,13 +137,13 @@ function HeroSection({ active, onContinue }: { active: boolean; onContinue: () =
       >
         <div className="mx-auto grid h-full w-full max-w-xl content-center gap-[clamp(0.25rem,0.8dvh,0.5rem)] py-[clamp(0.5rem,1.5dvh,0.9rem)]">
           {LANDING_TESTIMONIALS.map((testimonial) => (
-            <blockquote key={testimonial.name} className="border-l-2 border-red-500/80 pl-3">
+            <blockquote key={testimonial.name} className="border-l-2 border-[#E50910]/80 pl-3">
               <p className="text-[clamp(1rem,3.8vw,1.08rem)] font-medium leading-[1.15] tracking-[-0.015em] text-white">
-                <span className="text-red-500">“</span>
+                <span className="text-[#E50910]">“</span>
                 {testimonial.quote}
-                <span className="text-red-500">”</span>
+                <span className="text-[#E50910]">”</span>
               </p>
-              <footer className="mt-1 font-semibold leading-[1.15] text-red-500">
+              <footer className="mt-1 font-semibold leading-[1.15] text-[#E50910]">
                 <cite className="not-italic">— {testimonial.name}</cite>
               </footer>
             </blockquote>
@@ -160,7 +160,7 @@ function HeroSection({ active, onContinue }: { active: boolean; onContinue: () =
 
         <div className="flex min-h-0 items-center justify-center">
           <p className="text-center text-[clamp(1rem,4.5vw,1.4rem)] font-medium tracking-[-0.02em] text-white/78">
-            All with <span className="text-red-500">No More Copium</span>
+            All with <span className="text-[#E50910]">No More Copium</span>
           </p>
         </div>
 
@@ -169,7 +169,7 @@ function HeroSection({ active, onContinue }: { active: boolean; onContinue: () =
             type="button"
             onClick={onContinue}
             tabIndex={active ? 0 : -1}
-            className="group flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
+            className="group flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E50910] active:scale-[0.97]"
             aria-label="Continue to the next section"
           >
             <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
@@ -204,7 +204,7 @@ function HandsSection({ active, onContinue }: { active: boolean; onContinue: () 
         </div>
 
         <div className="flex min-h-0 items-center justify-center">
-          <p className="text-[clamp(1rem,4.5vw,1.35rem)] font-semibold tracking-[-0.02em] text-red-500">
+          <p className="text-[clamp(1rem,4.5vw,1.35rem)] font-semibold tracking-[-0.02em] text-[#E50910]">
             JFL, look at this.
           </p>
         </div>
@@ -214,7 +214,7 @@ function HandsSection({ active, onContinue }: { active: boolean; onContinue: () 
             type="button"
             onClick={onContinue}
             tabIndex={active ? 0 : -1}
-            className="flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.97]"
+            className="flex w-fit flex-col items-center gap-0.5 rounded-full px-5 py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E50910] active:scale-[0.97]"
             aria-label="Continue to the final section"
           >
             <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />
@@ -262,7 +262,7 @@ function ValueSection({ active }: { active: boolean }) {
     >
       <div className="mx-auto flex min-h-full w-full max-w-xl flex-col pb-[calc(1.4rem+env(safe-area-inset-bottom))] pt-[clamp(0.9rem,2.6dvh,1.8rem)]">
         <h2 className="text-[clamp(2rem,9vw,4.5rem)] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
-          All this for just <span className="mt-1 block text-red-500"> $29/month</span>
+          All this for just <span className="mt-1 block text-[#E50910]"> $29/month</span>
         </h2>
 
         <ul className="mt-[clamp(0.75rem,2dvh,1.3rem)] grid gap-[clamp(0.45rem,1.1dvh,0.7rem)]">
@@ -270,13 +270,13 @@ function ValueSection({ active }: { active: boolean }) {
             <Fragment key={item.lead}>
               <li className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-[clamp(0.55rem,1.25dvh,0.8rem)]">
                 <span
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-500/25 bg-red-500/10 text-red-500"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#E50910]/25 bg-[#E50910]/10 text-[#E50910]"
                   aria-hidden="true"
                 >
                   <ValueIcon name={item.icon} />
                 </span>
                 <p className="min-w-0 leading-[1.25]">
-                  <span className="block font-semibold text-red-500">{item.lead}</span>
+                  <span className="block font-semibold text-[#E50910]">{item.lead}</span>
                   {item.body && <span className="mt-0.5 block text-white/62">{item.body}</span>}
                 </p>
               </li>
