@@ -61,7 +61,7 @@ export function TransformationSection({
           }`}
         />
         {phase === "transforming" && (
-          <div className="landing-transform-wipe pointer-events-none absolute inset-y-0 w-1 bg-red-500/80" />
+          <div className="landing-transform-wipe pointer-events-none absolute inset-y-0 w-1 bg-[#E50910]/80" />
         )}
       </div>
 
@@ -70,12 +70,12 @@ export function TransformationSection({
       <div className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] top-[61%] z-[2] grid grid-rows-[24fr_44fr_32fr] px-5">
         <div className="flex min-h-0 items-center justify-center text-center" aria-live="polite">
           {phase === "after" ? (
-            <p className="text-[10px] font-medium uppercase tracking-[0.18em] leading-tight text-red-500">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] leading-tight text-[#E50910]">
               <span className="block">3 months later</span>
               <span className="block">(All natural)</span>
             </p>
           ) : (
-            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-red-500">Before</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#E50910]">Before</p>
           )}
         </div>
 
@@ -90,7 +90,7 @@ export function TransformationSection({
                 key={stat}
                 className="flex items-center gap-3 text-[clamp(1.1rem,5vw,1.45rem)] font-medium tracking-[-0.025em] text-white"
               >
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" aria-hidden="true" />
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#E50910]" aria-hidden="true" />
                 {stat}
               </li>
             ))}
@@ -104,7 +104,7 @@ export function TransformationSection({
               onClick={transform}
               disabled={phase === "transforming"}
               tabIndex={active ? 0 : -1}
-              className="inline-flex min-h-12 w-full max-w-md items-center justify-center rounded-full bg-red-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-red-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-70"
+              className="inline-flex min-h-12 w-full max-w-md items-center justify-center rounded-full bg-[#E50910] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#E50910] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E50910] focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:opacity-70"
             >
               {phase === "transforming" ? "Transforming…" : "Transform"}
             </button>
@@ -113,7 +113,7 @@ export function TransformationSection({
               type="button"
               onClick={onContinue}
               tabIndex={active ? 0 : -1}
-              className="landing-after-swipe flex w-full max-w-md flex-col items-center gap-0.5 rounded-full py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-[0.98]"
+              className="landing-after-swipe flex w-full max-w-md flex-col items-center gap-0.5 rounded-full py-1.5 text-white/65 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E50910] active:scale-[0.98]"
               aria-label="Continue to the next section"
             >
               <ChevronDown className="landing-swipe-chevron h-5 w-5" aria-hidden="true" />

@@ -786,6 +786,8 @@ function SetRow({
         targetReps: set.targetReps ?? set.repRangeMin,
         repRangeMin: undefined,
         repRangeMax: undefined,
+        intensity: undefined,
+        restSeconds: undefined,
       });
       return;
     }
@@ -892,6 +894,7 @@ function SetRow({
           </Select>
         </div>
 
+        {set.setType !== "warmup" && (
         <div className="space-y-1">
           <Label className="text-xs font-medium text-muted-foreground">Intensity</Label>
           <Select
@@ -910,6 +913,7 @@ function SetRow({
             </SelectContent>
           </Select>
         </div>
+        )}
 
         {set.setType === "warmup" ? (
           <div className="col-span-2 space-y-1">
